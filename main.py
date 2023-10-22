@@ -4,9 +4,13 @@ Date: 10/22/23
 """
 
 import os
+import sys
 
 from lapsepy.lapse import Lapse
 
+import logging
+
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 if __name__ == '__main__':
     lapse = Lapse(os.getenv("REFRESH_TOKEN"))
