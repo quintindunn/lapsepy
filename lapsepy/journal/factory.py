@@ -16,7 +16,7 @@ class BaseGQL:
 
 
 class CreateMediaGQL(BaseGQL):
-    def __init__(self, file_uuid: str, taken_at: datetime, develop_in: int, color_temperature: float,
+    def __init__(self, file_uuid: str, taken_at: str, develop_in: int, color_temperature: float,
                  exposure_value: float, flash: bool, timezone: str):
         super().__init__(
             operation_name="CreateMediaGraphQLMutation",
@@ -53,7 +53,7 @@ class CreateMediaGQL(BaseGQL):
             "faces": [],
             "mediaId": self.file_uuid,
             "takenAt": {
-                "isoString": self.taken_at.isoformat()[:-3] + "Z"
+                "isoString": self.taken_at
             },
             "timezone": self.timezone
         }
