@@ -4,7 +4,6 @@ Date: 10/22/23
 """
 
 import io
-import os
 
 from .common.exceptions import sync_journal_exception_router
 
@@ -14,7 +13,8 @@ from PIL import Image
 
 import requests
 
-from .factory import ImageUploadURLGQL, CreateMediaGQL
+from .factory import ImageUploadURLGQL, CreateMediaGQL, FriendsFeedItemsGQL
+from .structures import Profile, Snap
 
 
 def format_iso_time(dt: datetime) -> str:
@@ -32,6 +32,9 @@ class Journal:
         self.base_headers = {
             "authorization": authorization
         }
+
+    def refresh_authorization(self, new_token: str):
+        self.base_headers['authorization'] = new_token
 
     def _sync_journal_call(self, query: dict) -> dict:
         """
@@ -119,8 +122,51 @@ class Journal:
         ).to_dict()
         self._sync_journal_call(query=query)
 
+    def get_friends_feed(self, count: int = 10) -> list[Profile]:
+        """
+        Gets your friend upload feed.
+        :param count: How many collection to grab.
+        :return: A list of profiles
+        """
 
-if __name__ == '__main__':
-    journal = Journal(authorization=os.getenv("TOKEN"))
-    im_ = Image.open("../../examples/imgs/example_1.jpg")
-    journal.upload_photo(im_, 10)
+        cursor = None
+
+        profiles = {}
+        entry_ids = []
+
+        # If it started to repeat itself.
+        maxed = False
+        for _ in range(1, count, 10):
+            query = FriendsFeedItemsGQL(cursor).to_dict()
+            response = self._sync_journal_call(query)
+
+            # Where to query the new data from
+            cursor = response['data']['friendsFeedItems']['pageInfo']['endCursor']
+            if cursor is None:
+                break
+
+            # Trim useless data from response
+            feed_data = [i['node'] for i in response['data']['friendsFeedItems']['edges']]
+
+            # Create Profile objects which hold the media data in Profile.media
+            for node in feed_data:
+                username = node.get('user').get('username')
+                if username in profiles.keys():
+                    profile = profiles[username]
+                else:
+                    profile = Profile.from_dict(node.get("user"))
+                    profiles[username] = profile
+
+                for entry in node['content']['entries']:
+                    eid = entry['id']
+                    if eid in entry_ids:
+                        maxed = True
+                        break
+                    entry_ids.append(eid)
+                    snap = Snap.from_dict(entry)
+                    profile.media.append(snap)
+
+            if maxed:
+                break
+
+        return list(profiles.values())
