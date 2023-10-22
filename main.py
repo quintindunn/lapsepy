@@ -11,7 +11,9 @@ from lapsepy.lapse import Lapse
 if __name__ == '__main__':
     lapse = Lapse(os.getenv("REFRESH_TOKEN"))
 
-    friends_feed = lapse.get_friends_feed()
+    friends_feed = lapse.get_friends_feed(count=20)
 
-    first_snap = list(friends_feed.items())[0][1].media[0].load_snap()
-    first_snap.show()
+    for profile in friends_feed:
+        for snap in profile.media:
+            snap.load_snap(quality=100, fl_keep_iptc=True)
+            snap.filtered.save(snap.filtered_id.replace("/", "") + ".jpg")

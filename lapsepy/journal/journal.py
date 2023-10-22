@@ -128,7 +128,10 @@ class Journal:
         cursor = None
 
         profiles = {}
-        for _ in range(1, count+1, 10):
+        entry_ids = []
+
+        maxed = False
+        for _ in range(1, count, 10):
             current_count += 10
             query = FriendsFeedItemsGQL(cursor).to_dict()
             response = self._sync_journal_call(query)
@@ -145,7 +148,15 @@ class Journal:
                     profiles[hashed_profile] = profile
 
                 for entry in node['content']['entries']:
+                    eid = entry['id']
+                    if eid in entry_ids:
+                        maxed = True
+                        break
+                    entry_ids.append(eid)
                     snap = Snap.from_dict(entry)
                     profile.media.append(snap)
 
-        return profiles
+            if maxed:
+                break
+
+        return list(profiles.values())
