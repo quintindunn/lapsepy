@@ -1,3 +1,7 @@
+"""
+Author: Quintin Dunn
+Date: 10/22/23
+"""
 import io
 from datetime import datetime
 

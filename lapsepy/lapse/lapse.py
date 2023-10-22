@@ -1,3 +1,7 @@
+"""
+Author: Quintin Dunn
+Date: 10/22/23
+"""
 from PIL.Image import Image
 from datetime import datetime
 
@@ -49,6 +53,11 @@ class Lapse:
                                              timezone=timezone)
 
     def get_friends_feed(self, count: int = 10):
+        """
+        Gets your friend upload feed.
+        :param count: How many collection to grab.
+        :return: A list of profiles
+        """
         try:
             return self.journal.get_friends_feed(count=count)
         except AuthTokenExpired:
