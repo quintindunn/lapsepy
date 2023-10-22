@@ -14,6 +14,7 @@ if __name__ == '__main__':
     friends_feed = lapse.get_friends_feed(count=20)
 
     for profile in friends_feed:
+        print(profile.username)
         for snap in profile.media:
             snap.load_snap(quality=100, fl_keep_iptc=True)
             snap.filtered.save(snap.filtered_id.replace("/", "") + ".jpg")

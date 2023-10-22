@@ -21,6 +21,22 @@ class Lapse:
                      exposure_value: float = 9,
                      flash: bool = False,
                      timezone: str = "America/New_York"):
+        """
+        Upload an image to your Lapse darkroom
+        :param im: Pillow object of the Image.
+        :param develop_in: How many seconds until the Image should develop.
+        :param file_uuid: UUID of the image for backend storage, leave at None unless you know what you're doing.
+        :param taken_at: Datetime object of when the image was taken, can be left None to be set automatically to now.
+        :param color_temperature: Backend number of the color temperature, most likely from when Lapse applies a filter
+        to the image, most likely doesn't change anything. Leaving at 6000 however could help Lapse add bot detection.
+        :param exposure_value: Backend number of the exposure value, most likely from when the image is taken,
+         most likely doesn't change anything. Leaving at 9 however could help Lapse add bot detection.
+        :param flash: Backend boolean of if the image was taken with flash, most likely won't change anything. Leaving
+        as False **could** help Lapse with bot detection, though it's a boolean so won't narrow it down for them too
+        much
+        :param timezone: Timezone that lapse thinks you're using.
+        :return: None
+        """
         try:
             return self.journal.upload_photo(im=im, develop_in=develop_in, file_uuid=file_uuid, taken_at=taken_at,
                                              color_temperature=color_temperature, exposure_value=exposure_value,

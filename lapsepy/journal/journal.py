@@ -122,30 +122,40 @@ class Journal:
         ).to_dict()
         self._sync_journal_call(query=query)
 
-    def get_friends_feed(self, count: int = 10):
-        current_count = 0
+    def get_friends_feed(self, count: int = 10) -> list[Profile]:
+        """
+        Gets your friend upload feed.
+        :param count: How many collection to grab.
+        :return: A list of profiles
+        """
 
         cursor = None
 
         profiles = {}
         entry_ids = []
 
+        # If it started to repeat itself.
         maxed = False
         for _ in range(1, count, 10):
-            current_count += 10
             query = FriendsFeedItemsGQL(cursor).to_dict()
             response = self._sync_journal_call(query)
 
+            # Where to query the new data from
             cursor = response['data']['friendsFeedItems']['pageInfo']['endCursor']
+            if cursor is None:
+                break
 
+            # Trim useless data from response
             feed_data = [i['node'] for i in response['data']['friendsFeedItems']['edges']]
 
+            # Create Profile objects which hold the media data in Profile.media
             for node in feed_data:
-                profile = Profile.from_dict(node.get("user"))
-
-                hashed_profile = hash(profile)
-                if hashed_profile not in profiles.keys():
-                    profiles[hashed_profile] = profile
+                username = node.get('user').get('username')
+                if username in profiles.keys():
+                    profile = profiles[username]
+                else:
+                    profile = Profile.from_dict(node.get("user"))
+                    profiles[username] = profile
 
                 for entry in node['content']['entries']:
                     eid = entry['id']
