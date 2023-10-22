@@ -1,2 +1,5 @@
 .idea
 __pycache__
+lapsepy.egg-info
+dist
+build
