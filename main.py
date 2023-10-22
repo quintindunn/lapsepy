@@ -1,3 +1,9 @@
+"""
+Author: Quintin Dunn
+Date: 10/22/23
+"""
+
+
 import os
 from PIL import Image
 

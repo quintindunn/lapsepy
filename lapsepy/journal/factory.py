@@ -1,5 +1,7 @@
-# Author: Quintin Dunn
-# Date: 10/22/23
+"""
+Author: Quintin Dunn
+Date: 10/22/23
+"""
 
 from datetime import datetime, timedelta
 

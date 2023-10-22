@@ -1,5 +1,8 @@
-# Author: Quintin Dunn
-# Date: 10/22/23
+"""
+Author: Quintin Dunn
+Date: 10/22/23
+"""
+
 
 class SyncJournalException(Exception):
     def __init__(self, message: str = ""):
