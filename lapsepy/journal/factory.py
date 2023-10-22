@@ -1,13 +1,22 @@
+# Author: Quintin Dunn
+# Date: 10/22/23
+
 from datetime import datetime, timedelta
 
 
 class BaseGQL:
+    """
+    Base class for GraphQL queries.
+    """
     def __init__(self, operation_name: str, query: str):
         self.variables = None
         self.operation_name = operation_name
         self.query = query
 
     def to_dict(self):
+        """
+        :return: The GraphQL query as a dictionary, this is what is uploaded to the API.
+        """
         return {
             "operationName": self.operation_name,
             "query": self.query,
@@ -16,6 +25,9 @@ class BaseGQL:
 
 
 class CreateMediaGQL(BaseGQL):
+    """
+    Create the GraphQL Query for registering an image in the Lapse darkroom.
+    """
     def __init__(self, file_uuid: str, taken_at: str, develop_in: int, color_temperature: float,
                  exposure_value: float, flash: bool, timezone: str):
         super().__init__(
@@ -68,7 +80,13 @@ class CreateMediaGQL(BaseGQL):
 
 
 class ImageUploadURLGQL(BaseGQL):
+    """
+    Create the GraphQL Query for requesting an upload URL for the AWS server.
+    """
     def __init__(self, file_uuid):
+        """
+        :param file_uuid: UUID of the file uploaded.
+        """
         super().__init__(
             operation_name="ImageUploadURLGraphQLQuery",
             query="query ImageUploadURLGraphQLQuery($filename: String!) { imageUploadURL(filename: $filename) }"
