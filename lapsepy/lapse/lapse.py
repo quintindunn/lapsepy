@@ -9,6 +9,10 @@ from lapsepy.auth.refresher import refresh
 from lapsepy.journal.journal import Journal
 from lapsepy.journal.common.exceptions import AuthTokenExpired
 
+import logging
+
+logger = logging.getLogger("lapse.py")
+
 
 class Lapse:
     def __init__(self, refresh_token):
@@ -47,6 +51,7 @@ class Lapse:
                                              flash=flash,
                                              timezone=timezone)
         except AuthTokenExpired:
+            logger.debug("Authentication token expired.")
             return self.journal.upload_photo(im=im, develop_in=develop_in, file_uuid=file_uuid, taken_at=taken_at,
                                              color_temperature=color_temperature, exposure_value=exposure_value,
                                              flash=flash,
@@ -61,6 +66,7 @@ class Lapse:
         try:
             return self.journal.get_friends_feed(count=count)
         except AuthTokenExpired:
+            logger.debug("Authentication token expired.")
             return self.journal.get_friends_feed(count=count)
 
     def _refresh_auth_token(self) -> None:
@@ -68,5 +74,6 @@ class Lapse:
         Refreshes auth token in all subclasses that use the auth token.
         :return: None
         """
+        logger.debug("Refreshing lapse authentication token.")
         self.auth_token = refresh(self.refresh_token)
         self.journal.refresh_authorization(self.auth_token)
