@@ -1,6 +1,8 @@
 from setuptools import setup, find_packages
 
-VERSION = "0.0.1.1"
+from lapsepy import __version__
+
+VERSION = __version__
 DESCRIPTION = "A Python API wrapper for the social media app Lapse."
 LONG_DESCRIPTION = "An unofficial API wrapper for the social media app Lapse."
 
