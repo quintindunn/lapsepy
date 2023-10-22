@@ -16,6 +16,9 @@ import requests
 from .factory import ImageUploadURLGQL, CreateMediaGQL, FriendsFeedItemsGQL
 from .structures import Profile, Snap
 
+import logging
+logger = logging.getLogger("journal.py")
+
 
 def format_iso_time(dt: datetime) -> str:
     """
@@ -35,6 +38,7 @@ class Journal:
 
     def refresh_authorization(self, new_token: str):
         self.base_headers['authorization'] = new_token
+        logger.debug("Refreshed authorization in Journal")
 
     def _sync_journal_call(self, query: dict) -> dict:
         """
@@ -43,11 +47,14 @@ class Journal:
         :return: dict of the HTTP response.
         """
 
+        logger.debug(f"Making request to {self.request_url}")
+
         request = requests.post(self.request_url, headers=self.base_headers, json=query)
         request.raise_for_status()
 
         errors = request.json().get("errors", [])
         if len(errors) > 0:
+            logger.error(f"Got error from request to {self.request_url} with query {query}.")
             raise sync_journal_exception_router(error=errors[0])
 
         return request.json()
@@ -96,9 +103,11 @@ class Journal:
         taken_at = format_iso_time(taken_at)
 
         # Get AWS upload url from Lapse API.
+        logger.debug("Getting AWS url from Lapse API.")
         upload_url = self.image_upload_url_call(file_uuid=file_uuid)
 
         # Save the image as a jpeg in memory, this is what will get sent to AWS.
+        logger.debug("Saving image content to buffer.")
         bytes_io = io.BytesIO()
         im.save(bytes_io, format="jpeg")
         im_data = bytes_io.getvalue()
@@ -107,10 +116,13 @@ class Journal:
         aws_headers = {
             "User-Agent": "Lapse/20651 CFNetwork/1408.0.4 Darwin/22.5.0"
         }
+
+        logger.debug("Uploading image to AWS server.")
         aws_request = requests.put(upload_url, headers=aws_headers, data=im_data)
         aws_request.raise_for_status()
 
         # Register image in darkroom
+        logger.debug("Registering image in Lapse darkroom.")
         query = CreateMediaGQL(
             file_uuid=file_uuid,
             taken_at=taken_at,
@@ -121,6 +133,7 @@ class Journal:
             timezone=timezone
         ).to_dict()
         self._sync_journal_call(query=query)
+        logger.debug(f"Finished uploading image {file_uuid}.")
 
     def get_friends_feed(self, count: int = 10) -> list[Profile]:
         """
@@ -137,12 +150,14 @@ class Journal:
         # If it started to repeat itself.
         maxed = False
         for _ in range(1, count, 10):
+            logger.debug(f"Getting friends feed starting from cursor: {cursor or 'INITIAL'}")
             query = FriendsFeedItemsGQL(cursor).to_dict()
             response = self._sync_journal_call(query)
 
             # Where to query the new data from
             cursor = response['data']['friendsFeedItems']['pageInfo']['endCursor']
             if cursor is None:
+                logger.debug("Reached max cursor depth.")
                 break
 
             # Trim useless data from response
@@ -160,6 +175,7 @@ class Journal:
                 for entry in node['content']['entries']:
                     eid = entry['id']
                     if eid in entry_ids:
+                        logger.warn("Found duplicate of media, must've reached the end already...")
                         maxed = True
                         break
                     entry_ids.append(eid)
