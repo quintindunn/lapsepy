@@ -44,7 +44,12 @@ class Journal:
 
         return request.json()
 
-    def image_upload_url_call(self, file_uuid: str):
+    def image_upload_url_call(self, file_uuid: str) -> str:
+        """
+        Creates an API call to the sync-service graphql API to start the image upload process
+        :param file_uuid: uuid of image to upload.
+        :return: AWS URL the PUT the image on.
+        """
         query = ImageUploadURLGQL(file_uuid=file_uuid).to_dict()
         return self._sync_journal_call(query=query).get("data").get("imageUploadURL")
 
@@ -57,7 +62,23 @@ class Journal:
                      exposure_value: float = 9,
                      flash: bool = False,
                      timezone: str = "America/New_York"
-                     ):
+                     ) -> None:
+        """
+        Upload an image to your Lapse darkroom
+        :param im: Pillow object of the Image.
+        :param develop_in: How many seconds until the Image should develop.
+        :param file_uuid: UUID of the image for backend storage, leave at None unless you know what you're doing.
+        :param taken_at: Datetime object of when the image was taken, can be left None to be set automatically to now.
+        :param color_temperature: Backend number of the color temperature, most likely from when Lapse applies a filter
+        to the image, most likely doesn't change anything. Leaving at 6000 however could help Lapse add bot detection.
+        :param exposure_value: Backend number of the exposure value, most likely from when the image is taken,
+         most likely doesn't change anything. Leaving at 9 however could help Lapse add bot detection.
+        :param flash: Backend boolean of if the image was taken with flash, most likely won't change anything. Leaving
+        as False **could** help Lapse with bot detection, though it's a boolean so won't narrow it down for them too
+        much
+        :param timezone: Timezone that lapse thinks you're using.
+        :return: None
+        """
         if file_uuid is None:
             # UUID in testing always started with "01HDBZ" with a total length of 26 chars.
             file_uuid = "01HDBZ" + str(uuid4()).upper().replace("-", "")[:20]
