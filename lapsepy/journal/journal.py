@@ -32,6 +32,9 @@ class Journal:
             "authorization": authorization
         }
 
+    def refresh_authorization(self, new_token: str):
+        self.base_headers['authorization'] = new_token
+
     def _sync_journal_call(self, query: dict) -> dict:
         """
         Makes an API call to "https://sync-service.production.journal-api.lapse.app/graphql" with an arbitrary query.
@@ -122,11 +125,12 @@ class Journal:
         current_count = 0
 
         cursor = None
-        while current_count <= count:
+        for _ in range(1, count+1, 10):
             current_count += 10
             query = FriendsFeedItemsGQL(cursor).to_dict()
             response = self._sync_journal_call(query)
 
             cursor = response['data']['friendsFeedItems']['pageInfo']['endCursor']
 
-            print(response)
+            feed_data = [i['node'] for i in response['data']['friendsFeedItems']['edges']]
+            print(feed_data)

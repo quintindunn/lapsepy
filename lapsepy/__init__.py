@@ -7,3 +7,4 @@ __version__ = '0.0.1.2'
 
 from .journal import Journal
 from .auth.refresher import refresh
+from .lapse import Lapse
