@@ -4,7 +4,6 @@ Date: 10/22/23
 """
 
 import io
-import os
 
 from .common.exceptions import sync_journal_exception_router
 
@@ -14,7 +13,7 @@ from PIL import Image
 
 import requests
 
-from .factory import ImageUploadURLGQL, CreateMediaGQL
+from .factory import ImageUploadURLGQL, CreateMediaGQL, FriendsFeedItemsGQL
 
 
 def format_iso_time(dt: datetime) -> str:
@@ -119,8 +118,15 @@ class Journal:
         ).to_dict()
         self._sync_journal_call(query=query)
 
+    def get_friends_feed(self, count: int = 10):
+        current_count = 0
 
-if __name__ == '__main__':
-    journal = Journal(authorization=os.getenv("TOKEN"))
-    im_ = Image.open("../../examples/imgs/example_1.jpg")
-    journal.upload_photo(im_, 10)
+        cursor = None
+        while current_count <= count:
+            current_count += 10
+            query = FriendsFeedItemsGQL(cursor).to_dict()
+            response = self._sync_journal_call(query)
+
+            cursor = response['data']['friendsFeedItems']['pageInfo']['endCursor']
+
+            print(response)
