@@ -5,8 +5,11 @@ Date: 10/22/23
 import io
 from datetime import datetime
 
-import PIL.Image
+from PIL import Image
 import requests
+
+import logging
+logger = logging.getLogger("structures.py")
 
 
 def _dt_from_iso(dt_str: str):
@@ -24,6 +27,8 @@ class Profile:
 
     @staticmethod
     def from_dict(profile_data: dict) -> "Profile":
+        logger.debug("Creating new Profile object from dictionary.")
+
         pd = profile_data
         return Profile(
             user_id=pd.get('id'),
@@ -39,6 +44,7 @@ class Profile:
 
 class Snap:
     BASE_URL = "https://image.production.journal-api.lapse.app/image/upload/"
+
     def __init__(self, seen: bool, taken_at: datetime, develops_at: datetime, filtered_id: str | None,
                  original_id: str | None):
         self.seen = seen
@@ -52,6 +58,8 @@ class Snap:
 
     @staticmethod
     def from_dict(snap_data: dict) -> "Snap":
+        logger.debug("Creating new Snap object from dictionary.")
+
         sd = snap_data
         md = snap_data.get('media')
         return Snap(
@@ -66,26 +74,31 @@ class Snap:
         url = f"{self.BASE_URL}q_{quality}" + (",fl_keep_itc/" if fl_keep_iptc else "/")
         url += f"{self.filtered_id}.jpeg"
 
+        logger.debug(f"Getting image from \"{url}\"")
 
         request = requests.get(url)
         bytes_io = io.BytesIO(request.content)
-        im = PIL.Image.open(bytes_io)
+        im = Image.open(bytes_io)
         return im
 
     def load_original(self, quality: int, fl_keep_iptc: bool):
         url = f"{self.BASE_URL}q_{quality}" + (",fl_keep_itc" if fl_keep_iptc else "")
         url += f"{self.original_id}/original_0.jpeg"
 
+        logger.debug(f"Getting image from \"{url}\"")
+
         request = requests.get(url)
         bytes_io = io.BytesIO(request.content)
 
-        im = PIL.Image.open(bytes_io)
+        im = Image.open(bytes_io)
         return im
 
     def load_snap(self, quality: int = 100, fl_keep_iptc: bool = True):
         if self.filtered_id is not None:
+            logger.debug("Loading \"filtered\" image.")
             self.filtered = self.load_filtered(quality=quality, fl_keep_iptc=fl_keep_iptc)
             return self.filtered
         if self.original is not None:
+            logger.debug("Loading \"original\" image.")
             self.original = self.load_original(quality=quality, fl_keep_iptc=fl_keep_iptc)
             return self.original
