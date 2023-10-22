@@ -3,3 +3,4 @@ __pycache__
 lapsepy.egg-info
 dist
 build
+examples/get_friends_feed/out
