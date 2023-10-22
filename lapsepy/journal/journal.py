@@ -14,6 +14,7 @@ from PIL import Image
 import requests
 
 from .factory import ImageUploadURLGQL, CreateMediaGQL, FriendsFeedItemsGQL
+from .structures import Profile, Snap
 
 
 def format_iso_time(dt: datetime) -> str:
@@ -125,6 +126,7 @@ class Journal:
         current_count = 0
 
         cursor = None
+
         for _ in range(1, count+1, 10):
             current_count += 10
             query = FriendsFeedItemsGQL(cursor).to_dict()
@@ -133,4 +135,15 @@ class Journal:
             cursor = response['data']['friendsFeedItems']['pageInfo']['endCursor']
 
             feed_data = [i['node'] for i in response['data']['friendsFeedItems']['edges']]
-            print(feed_data)
+
+            profiles = {}
+            for node in feed_data:
+                profile = Profile.from_dict(node.get("user"))
+
+                hashed_profile = hash(profile)
+                if hashed_profile not in profiles.keys():
+                    profiles[hashed_profile] = profile
+
+                for entry in node['content']['entries']:
+                    snap = Snap.from_dict(entry)
+                    profile.media.append(snap)

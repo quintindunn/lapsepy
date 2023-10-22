@@ -12,3 +12,5 @@ if __name__ == '__main__':
     lapse = Lapse(os.getenv("REFRESH_TOKEN"))
 
     friends_feed = lapse.get_friends_feed()
+
+    print(friends_feed)
