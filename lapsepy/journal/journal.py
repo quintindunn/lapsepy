@@ -6,7 +6,7 @@ Date: 10/22/23
 import io
 import os
 
-from .common.exceptions import sync_journal_exception_router
+from .journal.common.exceptions import sync_journal_exception_router
 
 from uuid import uuid4
 from datetime import datetime

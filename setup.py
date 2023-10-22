@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 VERSION = "0.0.1"
 DESCRIPTION = "A Python API wrapper for the social media app Lapse."
@@ -17,7 +17,7 @@ setup(name='lapsepy',
       author="Quintin Dunn",
       author_email="dunnquintin07@gmail.com",
       url="https://github.com/quintindunn/lapsepy",
-      packages=['lapsepy'],
+      packages=find_packages(),
       keywords=['social media', 'lapsepy', 'api', 'api wrapper'],
       classifiers=[
             'Development Status :: 5 - Production/Stable',

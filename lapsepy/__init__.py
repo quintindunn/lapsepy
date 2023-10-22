@@ -5,4 +5,4 @@ Date: 10/22/23
 
 __version__ = '0.0.1'
 
-from .journal import journal
+from .journal import Journal
