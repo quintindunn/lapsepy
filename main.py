@@ -13,4 +13,5 @@ if __name__ == '__main__':
 
     friends_feed = lapse.get_friends_feed()
 
-    print(friends_feed)
+    first_snap = list(friends_feed.items())[0][1].media[0].load_snap()
+    first_snap.show()

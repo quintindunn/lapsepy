@@ -59,12 +59,12 @@ class Snap:
         )
 
     def load_filtered(self, quality: int, fl_keep_iptc: bool):
-        url = f"{self.BASE_URL}q_{quality}" + (",fl_keep_itc" if fl_keep_iptc else "")
-        url += f"{self.filtered_id}/filtered_0.jpeg"
+        url = f"{self.BASE_URL}q_{quality}" + (",fl_keep_itc/" if fl_keep_iptc else "/")
+        url += f"{self.filtered_id}.jpeg"
+
 
         request = requests.get(url)
         bytes_io = io.BytesIO(request.content)
-
         im = PIL.Image.open(bytes_io)
         return im
 
@@ -81,5 +81,7 @@ class Snap:
     def load_snap(self, quality: int = 100, fl_keep_iptc: bool = True):
         if self.filtered_id is not None:
             self.filtered = self.load_filtered(quality=quality, fl_keep_iptc=fl_keep_iptc)
+            return self.filtered
         if self.original is not None:
             self.original = self.load_original(quality=quality, fl_keep_iptc=fl_keep_iptc)
+            return self.original

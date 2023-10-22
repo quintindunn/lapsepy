@@ -127,6 +127,7 @@ class Journal:
 
         cursor = None
 
+        profiles = {}
         for _ in range(1, count+1, 10):
             current_count += 10
             query = FriendsFeedItemsGQL(cursor).to_dict()
@@ -136,7 +137,6 @@ class Journal:
 
             feed_data = [i['node'] for i in response['data']['friendsFeedItems']['edges']]
 
-            profiles = {}
             for node in feed_data:
                 profile = Profile.from_dict(node.get("user"))
 
@@ -147,3 +147,5 @@ class Journal:
                 for entry in node['content']['entries']:
                     snap = Snap.from_dict(entry)
                     profile.media.append(snap)
+
+        return profiles
