@@ -11,7 +11,7 @@ from lapsepy.journal.common.exceptions import AuthTokenExpired
 
 import logging
 
-logger = logging.getLogger("lapse.py")
+logger = logging.getLogger("lapsepy.lapse.lapse.py")
 
 
 class Lapse:

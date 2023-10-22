@@ -17,7 +17,7 @@ from .factory import ImageUploadURLGQL, CreateMediaGQL, FriendsFeedItemsGQL
 from .structures import Profile, Snap
 
 import logging
-logger = logging.getLogger("journal.py")
+logger = logging.getLogger("lapsepy.journal.journal.py")
 
 
 def format_iso_time(dt: datetime) -> str:

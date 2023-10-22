@@ -9,7 +9,7 @@ from PIL import Image
 import requests
 
 import logging
-logger = logging.getLogger("structures.py")
+logger = logging.getLogger("lapsepy.journal.structures.py")
 
 
 def _dt_from_iso(dt_str: str):
