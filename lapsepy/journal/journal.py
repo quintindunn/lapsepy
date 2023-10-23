@@ -5,7 +5,7 @@ Date: 10/22/23
 
 import io
 
-from .common.exceptions import sync_journal_exception_router
+from .common.exceptions import sync_journal_exception_router, SyncJournalException
 
 from uuid import uuid4
 from datetime import datetime
@@ -224,21 +224,61 @@ class Journal:
         return list(profiles.values())
 
     def modify_bio(self, bio: str):
+        """
+        Modifies your Lapse bio.
+        :param bio: Lapse bio to change to.
+        :return: None
+        """
         query = SaveBioGQL(bio=bio).to_dict()
-        self._sync_journal_call(query)
+        response = self._sync_journal_call(query)
+
+        if not response.get('data', dict()).get("SaveBioResponse"):
+            raise SyncJournalException("Error saving bio.")
 
     def modify_display_name(self, display_name: str):
+        """
+        Modifies your lapse display name.
+        :param display_name: Lapse display name to change to.
+        :return: None
+        """
         query = SaveDisplayNameGQL(display_name=display_name).to_dict()
-        self._sync_journal_call(query)
+        response = self._sync_journal_call(query)
+
+        if not response.get('data', dict()).get("SaveDisplayNameResponse"):
+            raise SyncJournalException("Error saving display name")
 
     def modify_username(self, username: str):
+        """
+        Modifies your lapse username.
+        :param username: Lapse username to change to.
+        :return: None
+        """
         query = SaveUsernameGQL(username=username).to_dict()
-        self._sync_journal_call(query)
+        response = self._sync_journal_call(query)
+
+        if not response.get('data', dict()).get("SaveUsernameResponse"):
+            raise SyncJournalException("Error saving username.")
 
     def modify_emojis(self, emojis: list[str]):
+        """
+        Modifies your Lapse emojis
+        :param emojis: list with a max len of 5 with emojis or text.
+        :return: None
+        """
         query = SaveEmojisGQL(emojis=emojis).to_dict()
-        self._sync_journal_call(query)
+        response = self._sync_journal_call(query)
+
+        if not response.get('data', dict()).get("SaveEmojisResponse"):
+            raise SyncJournalException("Error saving emojis.")
 
     def modify_dob(self, dob: str):
+        """
+        Modifies your Lapse date of birth
+        :param dob: Date of birth (yyyy-mm-dd)
+        :return: None
+        """
         query = SaveDOBGQL(dob=dob).to_dict()
-        self._sync_journal_call(query)
+        response = self._sync_journal_call(query)
+
+        if not response.get('data', dict()).get("SaveDateOfBirthResponse"):
+            raise SyncJournalException("Error saving date of birth.")
