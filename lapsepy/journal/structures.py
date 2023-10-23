@@ -2,13 +2,14 @@
 Author: Quintin Dunn
 Date: 10/22/23
 """
-import io
-from datetime import datetime
 
-from PIL import Image
+import io
+import logging
 import requests
 
-import logging
+from datetime import datetime
+from PIL import Image
+
 logger = logging.getLogger("lapsepy.journal.structures.py")
 
 
