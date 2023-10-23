@@ -116,3 +116,11 @@ class Lapse:
         :return: None
         """
         return self.journal.modify_username(username=username)
+
+    def update_emojis(self, emojis: list[str]):
+        """
+        Updates your Lapse emojis
+        :param emojis: List of emojis to put as your lapse emojis
+        :return: None
+        """
+        return self.journal.modify_emojis(emojis=emojis)

@@ -321,3 +321,22 @@ class SaveUsernameGQL(BaseGQL):
         self.variables['input'] = {
             "username": self.username
         }
+
+
+class SaveEmojisGQL(BaseGQL):
+    def __init__(self, emojis: list[str]):
+        super().__init__(
+            operation_name="SaveEmojisGraphQLMutation",
+            query="mutation SaveEmojisGraphQLMutation($input: SaveEmojisInput!) { saveEmojis(input: $input) "
+                  "{ __typename success } }")
+
+        self.emojis = emojis
+
+        self.variables = {}
+
+        self._render_variables()
+
+    def _render_variables(self):
+        self.variables['input'] = {
+            "emojis": self.emojis
+        }
