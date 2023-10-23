@@ -9,6 +9,10 @@ from lapsepy.auth.refresher import refresh
 from lapsepy.journal.journal import Journal
 from lapsepy.journal.common.exceptions import AuthTokenExpired
 
+import logging
+
+logger = logging.getLogger("lapsepy.lapse.lapse.py")
+
 
 class Lapse:
     def __init__(self, refresh_token):
@@ -47,6 +51,7 @@ class Lapse:
                                              flash=flash,
                                              timezone=timezone)
         except AuthTokenExpired:
+            logger.debug("Authentication token expired.")
             return self.journal.upload_photo(im=im, develop_in=develop_in, file_uuid=file_uuid, taken_at=taken_at,
                                              color_temperature=color_temperature, exposure_value=exposure_value,
                                              flash=flash,
@@ -61,6 +66,7 @@ class Lapse:
         try:
             return self.journal.get_friends_feed(count=count)
         except AuthTokenExpired:
+            logger.debug("Authentication token expired.")
             return self.journal.get_friends_feed(count=count)
 
     def _refresh_auth_token(self) -> None:
@@ -68,5 +74,61 @@ class Lapse:
         Refreshes auth token in all subclasses that use the auth token.
         :return: None
         """
+        logger.debug("Refreshing lapse authentication token.")
         self.auth_token = refresh(self.refresh_token)
         self.journal.refresh_authorization(self.auth_token)
+
+    def upload_instant(self, im: Image, user_id: str, file_uuid: str | None = None, im_id: str | None = None,
+                       caption: str | None = None, time_limit: int = 10):
+        """
+        Uploads an instant to Lapse server and sends it to a profile.
+        :param im: Pillow Image object of the image.
+        :param user_id: ID of user to send it to.
+        :param file_uuid: UUID of the file, leave this to None unless you know what you're doing
+        :param im_id: UUID of the instant, leave this to None unless you know what you're doing
+        :param caption: Caption of the instant
+        :param time_limit: How long they can view the instant for
+        :return:
+        """
+        return self.journal.upload_instant(im=im, user_id=user_id, file_uuid=file_uuid, im_id=im_id, caption=caption,
+                                           time_limit=time_limit)
+
+    def update_bio(self, bio: str):
+        """
+        Updates your Lapse bio
+        :param bio: String of what your new bio should be.
+        :return: None
+        """
+        return self.journal.modify_bio(bio=bio)
+
+    def update_display_name(self, display_name: str):
+        """
+        Updates your Lapse display name
+        :param display_name: String of what your new display name should be.
+        :return: None
+        """
+        return self.journal.modify_display_name(display_name=display_name)
+
+    def update_username(self, username: str):
+        """
+        Updates your Lapse username
+        :param username: String of what your new display name should be.
+        :return: None
+        """
+        return self.journal.modify_username(username=username)
+
+    def update_emojis(self, emojis: list[str]):
+        """
+        Updates your Lapse emojis
+        :param emojis: List of emojis to put as your lapse emojis
+        :return: None
+        """
+        return self.journal.modify_emojis(emojis=emojis)
+
+    def update_dob(self, dob: str):
+        """
+        Updates your Lapse date of birth
+        :param dob: date of birth in yyyy-mm-dd format
+        :return: None
+        """
+        return self.journal.modify_dob(dob=dob)

@@ -5,6 +5,9 @@ Date: 10/22/23
 
 from datetime import datetime, timedelta
 
+import logging
+logger = logging.getLogger("lapsepy.journal.factory.py")
+
 
 class BaseGQL:
     """
@@ -81,26 +84,82 @@ class CreateMediaGQL(BaseGQL):
         }
 
 
+class SendInstantsGQL(BaseGQL):
+    def __init__(self, user_id: str, file_uuid: str, im_id: str, caption: str, time_limit: int):
+        super().__init__(
+            operation_name="SendInstantsGraphQLMutation",
+            query="mutation SendInstantsGraphQLMutation($input: SendInstantsInput!) { sendInstants(input: $input) "
+                  "{ __typename success } }"
+        )
+
+        self.user_id = user_id
+        self.file_uuid = file_uuid
+        self.im_id = im_id
+        self.caption = caption
+        self.time_limit = time_limit
+
+        self.variables = {}
+
+        self._render_variables()
+
+    def _render_variables(self):
+        self.variables['input'] = {
+            "instants": [
+                {
+                    "destination": {
+                        "profile": {
+                            "userId": self.user_id
+                        }
+                    },
+                    "filename": f"instant/{self.file_uuid}",
+                    "id": self.im_id,
+                    "metadata": {
+                        "caption": self.caption,
+                        "frame": "ORIGINAL"
+                    },
+                    "timeLimit": self.time_limit
+
+                }
+            ]
+        }
+
+    def to_dict(self):
+        """
+        :return: The GraphQL query as a dictionary, this is what is uploaded to the API.
+        """
+        return {
+            "operationName": self.operation_name,
+            "query": self.query,
+            "variables": self.variables
+        }
+
+
 class ImageUploadURLGQL(BaseGQL):
     """
     Create the GraphQL Query for requesting an upload URL for the AWS server.
     """
-    def __init__(self, file_uuid):
+    def __init__(self, file_uuid, is_instant: bool = False):
         """
         :param file_uuid: UUID of the file uploaded.
+        :param is_instant: Whether the image uploaded is supposed to be an instant.
         """
         super().__init__(
             operation_name="ImageUploadURLGraphQLQuery",
             query="query ImageUploadURLGraphQLQuery($filename: String!) { imageUploadURL(filename: $filename) }"
         )
 
+        self.is_instant = is_instant
         self.file_uuid = file_uuid
         self.variables = {}
 
         self._render_variables()
 
     def _render_variables(self):
-        self.variables["filename"] = self.file_uuid + "/filtered_0.heic"
+        logger.info(self.file_uuid)
+        if not self.is_instant:
+            self.variables["filename"] = f"{self.file_uuid}/filtered_0.heic"
+        else:
+            self.variables["filename"] = f"instant/{self.file_uuid}.heic"
 
     def to_dict(self):
         return {
@@ -204,4 +263,103 @@ class FriendsFeedItemsGQL(BaseGQL):
             "operationName": self.operation_name,
             "query": self.query,
             "variables": self.variables,
+        }
+
+
+class SaveBioGQL(BaseGQL):
+    def __init__(self, bio: str):
+        super().__init__(
+            operation_name="SaveBioGraphQLMutation",
+            query="mutation SaveBioGraphQLMutation($input: SaveBioInput!) { saveBio(input: $input) "
+                  "{ __typename success } }")
+
+        self.bio = bio
+
+        self.variables = {}
+
+        self._render_variables()
+
+    def _render_variables(self):
+        self.variables['input'] = {
+            "bio": self.bio
+        }
+
+
+class SaveDisplayNameGQL(BaseGQL):
+    def __init__(self, display_name: str):
+        super().__init__(
+            operation_name="SaveDisplayNameGraphQLMutation",
+            query="mutation SaveDisplayNameGraphQLMutation($input: SaveDisplayNameInput!) "
+                  "{ saveDisplayName(input: $input) { __typename success } }")
+
+        self.display_name = display_name
+
+        self.variables = {}
+
+        self._render_variables()
+
+    def _render_variables(self):
+        self.variables['input'] = {
+            "displayName": self.display_name
+        }
+
+
+class SaveUsernameGQL(BaseGQL):
+    def __init__(self, username: str):
+        super().__init__(
+            operation_name="SaveUsernameGraphQLMutation",
+            query="mutation SaveUsernameGraphQLMutation($input: SaveUsernameInput!) "
+                  "{ saveUsername(input: $input) { __typename success } }")
+
+        self.username = username
+
+        self.variables = {}
+
+        self._render_variables()
+
+    def _render_variables(self):
+        self.variables['input'] = {
+            "username": self.username
+        }
+
+
+class SaveEmojisGQL(BaseGQL):
+    def __init__(self, emojis: list[str]):
+        super().__init__(
+            operation_name="SaveEmojisGraphQLMutation",
+            query="mutation SaveEmojisGraphQLMutation($input: SaveEmojisInput!) { saveEmojis(input: $input) "
+                  "{ __typename success } }")
+
+        self.emojis = emojis
+
+        self.variables = {}
+
+        self._render_variables()
+
+    def _render_variables(self):
+        self.variables['input'] = {
+            "emojis": self.emojis
+        }
+
+
+class SaveDOBGQL(BaseGQL):
+    def __init__(self, dob: str, public: bool = True):
+        super().__init__(
+            operation_name="SaveDOBGraphQLMutation",
+            query="mutation SaveDOBGraphQLMutation($input: SaveDateOfBirthInput!) "
+                  "{ saveDateOfBirth(input: $input) { __typename success } }")
+
+        self.dob = dob
+        self.visibility = "PUBLIC" if public else "PRIVATE"
+
+        self.variables = {}
+
+        self._render_variables()
+
+    def _render_variables(self):
+        self.variables['input'] = {
+            "dob": {
+                "date": self.dob
+            },
+            "visibility": self.visibility
         }

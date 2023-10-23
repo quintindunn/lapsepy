@@ -5,7 +5,7 @@ Date: 10/22/23
 
 import io
 
-from .common.exceptions import sync_journal_exception_router
+from .common.exceptions import sync_journal_exception_router, SyncJournalException
 
 from uuid import uuid4
 from datetime import datetime
@@ -13,8 +13,12 @@ from PIL import Image
 
 import requests
 
-from .factory import ImageUploadURLGQL, CreateMediaGQL, FriendsFeedItemsGQL
+from .factory import ImageUploadURLGQL, CreateMediaGQL, SendInstantsGQL, FriendsFeedItemsGQL, SaveBioGQL, \
+    SaveDisplayNameGQL, SaveUsernameGQL, SaveEmojisGQL, SaveDOBGQL
 from .structures import Profile, Snap
+
+import logging
+logger = logging.getLogger("lapsepy.journal.journal.py")
 
 
 def format_iso_time(dt: datetime) -> str:
@@ -35,6 +39,7 @@ class Journal:
 
     def refresh_authorization(self, new_token: str):
         self.base_headers['authorization'] = new_token
+        logger.debug("Refreshed authorization in Journal")
 
     def _sync_journal_call(self, query: dict) -> dict:
         """
@@ -43,34 +48,54 @@ class Journal:
         :return: dict of the HTTP response.
         """
 
+        logger.debug(f"Making request to {self.request_url}")
+
         request = requests.post(self.request_url, headers=self.base_headers, json=query)
         request.raise_for_status()
 
         errors = request.json().get("errors", [])
         if len(errors) > 0:
+            logger.error(f"Got error from request to {self.request_url} with query {query}.")
             raise sync_journal_exception_router(error=errors[0])
 
         return request.json()
 
-    def image_upload_url_call(self, file_uuid: str) -> str:
+    def image_upload_url_call(self, file_uuid: str, is_instant: bool = False) -> str:
         """
         Creates an API call to the sync-service graphql API to start the image upload process
         :param file_uuid: uuid of image to upload.
+        :param is_instant: Whether the image being uploaded is for an instant
         :return: AWS URL the PUT the image on.
         """
-        query = ImageUploadURLGQL(file_uuid=file_uuid).to_dict()
+        query = ImageUploadURLGQL(file_uuid=file_uuid, is_instant=is_instant).to_dict()
         return self._sync_journal_call(query=query).get("data").get("imageUploadURL")
 
-    def upload_photo(self,
-                     im: Image.Image,
-                     develop_in: int,
-                     file_uuid: str | None = None,
-                     taken_at: datetime | None = None,
-                     color_temperature: float = 6000,
-                     exposure_value: float = 9,
-                     flash: bool = False,
-                     timezone: str = "America/New_York"
-                     ) -> None:
+    @staticmethod
+    def _upload_image_to_aws(im: Image, upload_url: str):
+        """
+        Uploads an image to the Lapse AWS server.
+        :param im: Image to upload to server
+        :param upload_url: Url to upload to
+        :return:
+        """
+        # Save the image as a jpeg in memory, this is what will get sent to AWS.
+        logger.debug("Saving image content to buffer.")
+        bytes_io = io.BytesIO()
+        im.save(bytes_io, format="jpeg")
+        im_data = bytes_io.getvalue()
+
+        # Send image to AWS server
+        aws_headers = {
+            "User-Agent": "Lapse/20651 CFNetwork/1408.0.4 Darwin/22.5.0"
+        }
+
+        logger.debug("Uploading image to AWS server.")
+        aws_request = requests.put(upload_url, headers=aws_headers, data=im_data)
+        aws_request.raise_for_status()
+
+    def upload_photo(self, im: Image.Image, develop_in: int, file_uuid: str | None = None,
+                     taken_at: datetime | None = None, color_temperature: float = 6000, exposure_value: float = 9,
+                     flash: bool = False, timezone: str = "America/New_York") -> None:
         """
         Upload an image to your Lapse darkroom
         :param im: Pillow object of the Image.
@@ -96,21 +121,14 @@ class Journal:
         taken_at = format_iso_time(taken_at)
 
         # Get AWS upload url from Lapse API.
+        logger.debug("Getting AWS url from Lapse API.")
         upload_url = self.image_upload_url_call(file_uuid=file_uuid)
 
-        # Save the image as a jpeg in memory, this is what will get sent to AWS.
-        bytes_io = io.BytesIO()
-        im.save(bytes_io, format="jpeg")
-        im_data = bytes_io.getvalue()
-
-        # Send image to AWS server
-        aws_headers = {
-            "User-Agent": "Lapse/20651 CFNetwork/1408.0.4 Darwin/22.5.0"
-        }
-        aws_request = requests.put(upload_url, headers=aws_headers, data=im_data)
-        aws_request.raise_for_status()
+        # Upload to AWS
+        self._upload_image_to_aws(im=im, upload_url=upload_url)
 
         # Register image in darkroom
+        logger.debug("Registering image in Lapse darkroom.")
         query = CreateMediaGQL(
             file_uuid=file_uuid,
             taken_at=taken_at,
@@ -118,9 +136,40 @@ class Journal:
             color_temperature=color_temperature,
             exposure_value=exposure_value,
             flash=flash,
-            timezone=timezone
+            timezone=timezone,
         ).to_dict()
         self._sync_journal_call(query=query)
+        logger.debug(f"Finished uploading image {file_uuid}.")
+
+    def upload_instant(self, im: Image.Image, user_id: str, file_uuid: str | None = None, im_id: str | None = None,
+                       caption: str | None = None, time_limit: int = 10):
+        """
+        Uploads an instant and sends it to a user
+        :param im: Pillow Image object of the image.
+        :param user_id: ID of user to send it to.
+        :param file_uuid: UUID of the file, leave this to None unless you know what you're doing
+        :param im_id: UUID of the instant, leave this to None unless you know what you're doing
+        :param caption: Caption of the instant
+        :param time_limit: How long they can view the instant for
+        :return:
+        """
+
+        if file_uuid is None:
+            # UUID in testing always started with "01HDCWT" with a total length of 26 chars.
+            file_uuid = "01HDCWT" + str(uuid4()).upper().replace("-", "")[:19]
+            print(file_uuid)
+
+        if im_id is None:
+            # UUID in testing always started with "01HDCWT" with a total length of 26 chars.
+            im_id = "01HDCWT" + str(uuid4()).upper().replace("-", "")[:19]
+
+        upload_url = self.image_upload_url_call(file_uuid=file_uuid, is_instant=True)
+
+        self._upload_image_to_aws(im=im, upload_url=upload_url)
+
+        query = SendInstantsGQL(user_id=user_id, file_uuid=file_uuid, im_id=im_id, caption=caption,
+                                time_limit=time_limit).to_dict()
+        self._sync_journal_call(query)
 
     def get_friends_feed(self, count: int = 10) -> list[Profile]:
         """
@@ -137,12 +186,14 @@ class Journal:
         # If it started to repeat itself.
         maxed = False
         for _ in range(1, count, 10):
+            logger.debug(f"Getting friends feed starting from cursor: {cursor or 'INITIAL'}")
             query = FriendsFeedItemsGQL(cursor).to_dict()
             response = self._sync_journal_call(query)
 
             # Where to query the new data from
             cursor = response['data']['friendsFeedItems']['pageInfo']['endCursor']
             if cursor is None:
+                logger.debug("Reached max cursor depth.")
                 break
 
             # Trim useless data from response
@@ -160,6 +211,7 @@ class Journal:
                 for entry in node['content']['entries']:
                     eid = entry['id']
                     if eid in entry_ids:
+                        logger.warn("Found duplicate of media, must've reached the end already...")
                         maxed = True
                         break
                     entry_ids.append(eid)
@@ -170,3 +222,73 @@ class Journal:
                 break
 
         return list(profiles.values())
+
+    def modify_bio(self, bio: str):
+        """
+        Modifies your Lapse bio.
+        :param bio: Lapse bio to change to.
+        :return: None
+        """
+        query = SaveBioGQL(bio=bio).to_dict()
+        response = self._sync_journal_call(query)
+
+        logger.debug("Updated Profile Bio.")
+
+        if not response.get('data', dict()).get("SaveBioResponse"):
+            raise SyncJournalException("Error saving bio.")
+
+    def modify_display_name(self, display_name: str):
+        """
+        Modifies your lapse display name.
+        :param display_name: Lapse display name to change to.
+        :return: None
+        """
+        query = SaveDisplayNameGQL(display_name=display_name).to_dict()
+        response = self._sync_journal_call(query)
+
+        logger.debug("Updated Display Name.")
+
+        if not response.get('data', dict()).get("SaveDisplayNameResponse"):
+            raise SyncJournalException("Error saving display name")
+
+    def modify_username(self, username: str):
+        """
+        Modifies your lapse username.
+        :param username: Lapse username to change to.
+        :return: None
+        """
+        query = SaveUsernameGQL(username=username).to_dict()
+        response = self._sync_journal_call(query)
+
+        logger.debug("Updated Username.")
+
+        if not response.get('data', dict()).get("SaveUsernameResponse"):
+            raise SyncJournalException("Error saving username.")
+
+    def modify_emojis(self, emojis: list[str]):
+        """
+        Modifies your Lapse emojis
+        :param emojis: list with a max len of 5 with emojis or text.
+        :return: None
+        """
+        query = SaveEmojisGQL(emojis=emojis).to_dict()
+        response = self._sync_journal_call(query)
+
+        logger.debug("Updated Emojis.")
+
+        if not response.get('data', dict()).get("SaveEmojisResponse"):
+            raise SyncJournalException("Error saving emojis.")
+
+    def modify_dob(self, dob: str):
+        """
+        Modifies your Lapse date of birth
+        :param dob: Date of birth (yyyy-mm-dd)
+        :return: None
+        """
+        query = SaveDOBGQL(dob=dob).to_dict()
+        response = self._sync_journal_call(query)
+
+        logger.debug("Updated Date Of Birth.")
+
+        if not response.get('data', dict()).get("SaveDateOfBirthResponse"):
+            raise SyncJournalException("Error saving date of birth.")
