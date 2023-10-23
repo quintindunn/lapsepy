@@ -21,9 +21,9 @@ class Profile:
     def __init__(self, user_id: str, username: str, display_name: str, profile_photo_name: str, bio: str):
         self.user_id: str = user_id
         self.username: str = username
-        self.user_display_name = display_name
-        self.profile_photo_name = profile_photo_name
-        self.bio = bio
+        self.user_display_name: str = display_name
+        self.profile_photo_name: str = profile_photo_name
+        self.bio: str = bio
         self.media: list[Snap] = []
 
     @staticmethod
@@ -48,7 +48,7 @@ class Snap:
 
     def __init__(self, seen: bool, taken_at: datetime, develops_at: datetime, filtered_id: str | None,
                  original_id: str | None):
-        self.seen = seen
+        self.seen: bool = seen
         self.taken_at: datetime = taken_at
         self.develops_at: datetime = develops_at
         self.filtered_id: str | None = filtered_id
