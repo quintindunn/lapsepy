@@ -92,16 +92,9 @@ class Journal:
         aws_request = requests.put(upload_url, headers=aws_headers, data=im_data)
         aws_request.raise_for_status()
 
-    def upload_photo(self,
-                     im: Image.Image,
-                     develop_in: int,
-                     file_uuid: str | None = None,
-                     taken_at: datetime | None = None,
-                     color_temperature: float = 6000,
-                     exposure_value: float = 9,
-                     flash: bool = False,
-                     timezone: str = "America/New_York"
-                     ) -> None:
+    def upload_photo(self, im: Image.Image, develop_in: int, file_uuid: str | None = None,
+                     taken_at: datetime | None = None, color_temperature: float = 6000, exposure_value: float = 9,
+                     flash: bool = False, timezone: str = "America/New_York") -> None:
         """
         Upload an image to your Lapse darkroom
         :param im: Pillow object of the Image.
