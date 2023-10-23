@@ -13,7 +13,7 @@ from PIL import Image
 
 import requests
 
-from .factory import ImageUploadURLGQL, CreateMediaGQL, FriendsFeedItemsGQL
+from .factory import ImageUploadURLGQL, CreateMediaGQL, SendInstantsGQL, FriendsFeedItemsGQL
 from .structures import Profile, Snap
 
 import logging
@@ -59,14 +59,38 @@ class Journal:
 
         return request.json()
 
-    def image_upload_url_call(self, file_uuid: str) -> str:
+    def image_upload_url_call(self, file_uuid: str, is_instant: bool = False) -> str:
         """
         Creates an API call to the sync-service graphql API to start the image upload process
         :param file_uuid: uuid of image to upload.
+        :param is_instant: Whether the image being uploaded is for an instant
         :return: AWS URL the PUT the image on.
         """
-        query = ImageUploadURLGQL(file_uuid=file_uuid).to_dict()
+        query = ImageUploadURLGQL(file_uuid=file_uuid, is_instant=is_instant).to_dict()
         return self._sync_journal_call(query=query).get("data").get("imageUploadURL")
+
+    @staticmethod
+    def _upload_image_to_aws(im: Image, upload_url: str):
+        """
+        Uploads an image to the Lapse AWS server.
+        :param im: Image to upload to server
+        :param upload_url: Url to upload to
+        :return:
+        """
+        # Save the image as a jpeg in memory, this is what will get sent to AWS.
+        logger.debug("Saving image content to buffer.")
+        bytes_io = io.BytesIO()
+        im.save(bytes_io, format="jpeg")
+        im_data = bytes_io.getvalue()
+
+        # Send image to AWS server
+        aws_headers = {
+            "User-Agent": "Lapse/20651 CFNetwork/1408.0.4 Darwin/22.5.0"
+        }
+
+        logger.debug("Uploading image to AWS server.")
+        aws_request = requests.put(upload_url, headers=aws_headers, data=im_data)
+        aws_request.raise_for_status()
 
     def upload_photo(self,
                      im: Image.Image,
@@ -106,20 +130,8 @@ class Journal:
         logger.debug("Getting AWS url from Lapse API.")
         upload_url = self.image_upload_url_call(file_uuid=file_uuid)
 
-        # Save the image as a jpeg in memory, this is what will get sent to AWS.
-        logger.debug("Saving image content to buffer.")
-        bytes_io = io.BytesIO()
-        im.save(bytes_io, format="jpeg")
-        im_data = bytes_io.getvalue()
-
-        # Send image to AWS server
-        aws_headers = {
-            "User-Agent": "Lapse/20651 CFNetwork/1408.0.4 Darwin/22.5.0"
-        }
-
-        logger.debug("Uploading image to AWS server.")
-        aws_request = requests.put(upload_url, headers=aws_headers, data=im_data)
-        aws_request.raise_for_status()
+        # Upload to AWS
+        self._upload_image_to_aws(im=im, upload_url=upload_url)
 
         # Register image in darkroom
         logger.debug("Registering image in Lapse darkroom.")
@@ -130,10 +142,40 @@ class Journal:
             color_temperature=color_temperature,
             exposure_value=exposure_value,
             flash=flash,
-            timezone=timezone
+            timezone=timezone,
         ).to_dict()
         self._sync_journal_call(query=query)
         logger.debug(f"Finished uploading image {file_uuid}.")
+
+    def upload_instant(self, im: Image.Image, user_id: str, file_uuid: str | None = None, im_id: str | None = None,
+                       caption: str | None = None, time_limit: int = 10):
+        """
+        Uploads an instant and sends it to a user
+        :param im: Pillow Image object of the image.
+        :param user_id: ID of user to send it to.
+        :param file_uuid: UUID of the file, leave this to None unless you know what you're doing
+        :param im_id: UUID of the instant, leave this to None unless you know what you're doing
+        :param caption: Caption of the instant
+        :param time_limit: How long they can view the instant for
+        :return:
+        """
+
+        if file_uuid is None:
+            # UUID in testing always started with "01HDCWT" with a total length of 26 chars.
+            file_uuid = "01HDCWT" + str(uuid4()).upper().replace("-", "")[:19]
+            print(file_uuid)
+
+        if im_id is None:
+            # UUID in testing always started with "01HDCWT" with a total length of 26 chars.
+            im_id = "01HDCWT" + str(uuid4()).upper().replace("-", "")[:19]
+
+        upload_url = self.image_upload_url_call(file_uuid=file_uuid, is_instant=True)
+
+        self._upload_image_to_aws(im=im, upload_url=upload_url)
+
+        query = SendInstantsGQL(user_id=user_id, file_uuid=file_uuid, im_id=im_id, caption=caption,
+                                time_limit=time_limit).to_dict()
+        self._sync_journal_call(query)
 
     def get_friends_feed(self, count: int = 10) -> list[Profile]:
         """
