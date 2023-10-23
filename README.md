@@ -17,3 +17,10 @@ One of the most challenging parts of this project is authentication, it uses App
 * Watch your proxies API calls for the second call to `https://auth.production.journal-api.lapse.app/verify` and inspect it.
 * Go to the Response tab, and set `view` to `json`
 * Copy the refreshToken line.
+
+
+## How to use examples:
+1. Clone the repository `git clone https://github.com/quintindunn/lapsepy.git`
+2. OPTION 1: Set your refresh token in your environment variable as `REFRESH_TOKEN`<br>
+OPTION 2: In the examples replace the `os.getenv("REFRESH_TOKEN")` with `"YOUR_REFRESH_TOKEN"`
+3. Run the file.
