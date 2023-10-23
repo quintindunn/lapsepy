@@ -232,6 +232,8 @@ class Journal:
         query = SaveBioGQL(bio=bio).to_dict()
         response = self._sync_journal_call(query)
 
+        logger.debug("Updated Profile Bio.")
+
         if not response.get('data', dict()).get("SaveBioResponse"):
             raise SyncJournalException("Error saving bio.")
 
@@ -243,6 +245,8 @@ class Journal:
         """
         query = SaveDisplayNameGQL(display_name=display_name).to_dict()
         response = self._sync_journal_call(query)
+
+        logger.debug("Updated Display Name.")
 
         if not response.get('data', dict()).get("SaveDisplayNameResponse"):
             raise SyncJournalException("Error saving display name")
@@ -256,6 +260,8 @@ class Journal:
         query = SaveUsernameGQL(username=username).to_dict()
         response = self._sync_journal_call(query)
 
+        logger.debug("Updated Username.")
+
         if not response.get('data', dict()).get("SaveUsernameResponse"):
             raise SyncJournalException("Error saving username.")
 
@@ -268,6 +274,8 @@ class Journal:
         query = SaveEmojisGQL(emojis=emojis).to_dict()
         response = self._sync_journal_call(query)
 
+        logger.debug("Updated Emojis.")
+
         if not response.get('data', dict()).get("SaveEmojisResponse"):
             raise SyncJournalException("Error saving emojis.")
 
@@ -279,6 +287,8 @@ class Journal:
         """
         query = SaveDOBGQL(dob=dob).to_dict()
         response = self._sync_journal_call(query)
+
+        logger.debug("Updated Date Of Birth.")
 
         if not response.get('data', dict()).get("SaveDateOfBirthResponse"):
             raise SyncJournalException("Error saving date of birth.")
