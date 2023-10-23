@@ -108,3 +108,11 @@ class Lapse:
         :return: None
         """
         return self.journal.modify_display_name(display_name=display_name)
+
+    def update_username(self, username: str):
+        """
+        Updates your Lapse username
+        :param username: String of what your new display name should be.
+        :return: None
+        """
+        return self.journal.modify_username(username=username)

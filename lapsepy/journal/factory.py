@@ -302,3 +302,22 @@ class SaveDisplayNameGQL(BaseGQL):
         self.variables['input'] = {
             "displayName": self.display_name
         }
+
+
+class SaveUsernameGQL(BaseGQL):
+    def __init__(self, username: str):
+        super().__init__(
+            operation_name="SaveUsernameGraphQLMutation",
+            query="mutation SaveUsernameGraphQLMutation($input: SaveUsernameInput!) "
+                  "{ saveUsername(input: $input) { __typename success } }")
+
+        self.username = username
+
+        self.variables = {}
+
+        self._render_variables()
+
+    def _render_variables(self):
+        self.variables['input'] = {
+            "username": self.username
+        }
