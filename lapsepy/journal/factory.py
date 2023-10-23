@@ -340,3 +340,26 @@ class SaveEmojisGQL(BaseGQL):
         self.variables['input'] = {
             "emojis": self.emojis
         }
+
+
+class SaveDOBGQL(BaseGQL):
+    def __init__(self, dob: str, public: bool = True):
+        super().__init__(
+            operation_name="SaveDOBGraphQLMutation",
+            query="mutation SaveDOBGraphQLMutation($input: SaveDateOfBirthInput!) "
+                  "{ saveDateOfBirth(input: $input) { __typename success } }")
+
+        self.dob = dob
+        self.visibility = "PUBLIC" if public else "PRIVATE"
+
+        self.variables = {}
+
+        self._render_variables()
+
+    def _render_variables(self):
+        self.variables['input'] = {
+            "dob": {
+                "date": self.dob
+            },
+            "visibility": self.visibility
+        }

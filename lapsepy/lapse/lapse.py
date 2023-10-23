@@ -124,3 +124,11 @@ class Lapse:
         :return: None
         """
         return self.journal.modify_emojis(emojis=emojis)
+
+    def update_dob(self, dob: str):
+        """
+        Updates your Lapse date of birth
+        :param dob: date of birth in yyyy-mm-dd format
+        :return: None
+        """
+        return self.journal.modify_dob(dob=dob)

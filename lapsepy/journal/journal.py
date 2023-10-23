@@ -14,7 +14,7 @@ from PIL import Image
 import requests
 
 from .factory import ImageUploadURLGQL, CreateMediaGQL, SendInstantsGQL, FriendsFeedItemsGQL, SaveBioGQL, \
-    SaveDisplayNameGQL, SaveUsernameGQL, SaveEmojisGQL
+    SaveDisplayNameGQL, SaveUsernameGQL, SaveEmojisGQL, SaveDOBGQL
 from .structures import Profile, Snap
 
 import logging
@@ -237,4 +237,8 @@ class Journal:
 
     def modify_emojis(self, emojis: list[str]):
         query = SaveEmojisGQL(emojis=emojis).to_dict()
+        self._sync_journal_call(query)
+
+    def modify_dob(self, dob: str):
+        query = SaveDOBGQL(dob=dob).to_dict()
         self._sync_journal_call(query)
