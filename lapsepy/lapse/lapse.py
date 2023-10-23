@@ -92,3 +92,11 @@ class Lapse:
         """
         return self.journal.upload_instant(im=im, user_id=user_id, file_uuid=file_uuid, im_id=im_id, caption=caption,
                                            time_limit=time_limit)
+
+    def update_bio(self, bio: str):
+        """
+        Updates your Lapse bio
+        :param bio: String of what your new bio should be.
+        :return: None
+        """
+        return self.journal.modify_bio(bio=bio)

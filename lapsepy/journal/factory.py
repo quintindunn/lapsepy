@@ -264,3 +264,22 @@ class FriendsFeedItemsGQL(BaseGQL):
             "query": self.query,
             "variables": self.variables,
         }
+
+
+class SaveBioGQL(BaseGQL):
+    def __init__(self, bio: str):
+        super().__init__(
+            operation_name="SaveBioGraphQLMutation",
+            query="mutation SaveBioGraphQLMutation($input: SaveBioInput!) { saveBio(input: $input) "
+                  "{ __typename success } }")
+
+        self.bio = bio
+
+        self.variables = {}
+
+        self._render_variables()
+
+    def _render_variables(self):
+        self.variables['input'] = {
+            "bio": self.bio
+        }
