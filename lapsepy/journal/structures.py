@@ -32,11 +32,11 @@ class Profile:
 
         pd = profile_data
         return Profile(
-            user_id=pd.get('id'),
-            username=pd.get('username'),
-            display_name=pd.get('displayName'),
-            profile_photo_name=pd.get('profilePhotoName'),
-            bio=pd.get('bio')
+            user_id = pd.get('id'),
+            username = pd.get('username'),
+            display_name = pd.get('displayName'),
+            profile_photo_name = pd.get('profilePhotoName'),
+            bio = pd.get('bio')
         )
 
     def __str__(self):
@@ -61,14 +61,13 @@ class Snap:
     def from_dict(snap_data: dict) -> "Snap":
         logger.debug("Creating new Snap object from dictionary.")
 
-        sd = snap_data
-        md = snap_data.get('media')
+        media = snap_data.get('media')
         return Snap(
-            seen=sd.get('seen'),
-            taken_at=_dt_from_iso(md.get("takenAt")['isoString']),
-            develops_at=_dt_from_iso(md.get("developsAt")['isoString']),
-            filtered_id=md['content'].get("filtered"),
-            original_id=md['content'].get("original")
+            seen = snap_data.get('seen'),
+            taken_at = _dt_from_iso(media.get("takenAt")['isoString']),
+            develops_at = _dt_from_iso(media.get("developsAt")['isoString']),
+            filtered_id = media['content'].get("filtered"),
+            original_id = media['content'].get("original")
         )
 
     def load_filtered(self, quality: int, fl_keep_iptc: bool):
@@ -79,8 +78,8 @@ class Snap:
 
         request = requests.get(url)
         bytes_io = io.BytesIO(request.content)
-        im = Image.open(bytes_io)
-        return im
+        image = Image.open(bytes_io)
+        return image
 
     def load_original(self, quality: int, fl_keep_iptc: bool):
         url = f"{self.BASE_URL}q_{quality}" + (",fl_keep_itc" if fl_keep_iptc else "")
@@ -91,8 +90,8 @@ class Snap:
         request = requests.get(url)
         bytes_io = io.BytesIO(request.content)
 
-        im = Image.open(bytes_io)
-        return im
+        image = Image.open(bytes_io)
+        return image
 
     def load_snap(self, quality: int = 100, fl_keep_iptc: bool = True):
         if self.filtered_id is not None:
