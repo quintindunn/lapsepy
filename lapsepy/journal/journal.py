@@ -13,7 +13,8 @@ from PIL import Image
 
 import requests
 
-from .factory import ImageUploadURLGQL, CreateMediaGQL, SendInstantsGQL, FriendsFeedItemsGQL, SaveBioGQL
+from .factory import ImageUploadURLGQL, CreateMediaGQL, SendInstantsGQL, FriendsFeedItemsGQL, SaveBioGQL, \
+    SaveDisplayNameGQL
 from .structures import Profile, Snap
 
 import logging
@@ -225,4 +226,9 @@ class Journal:
     def modify_bio(self, bio: str):
         query = SaveBioGQL(bio=bio).to_dict()
         self._sync_journal_call(query)
+
+    def modify_display_name(self, display_name: str):
+        query = SaveDisplayNameGQL(display_name=display_name).to_dict()
+        self._sync_journal_call(query)
+
 

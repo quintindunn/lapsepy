@@ -100,3 +100,11 @@ class Lapse:
         :return: None
         """
         return self.journal.modify_bio(bio=bio)
+
+    def update_display_name(self, display_name: str):
+        """
+        Updates your Lapse display name
+        :param display_name: String of what your new display name should be.
+        :return: None
+        """
+        return self.journal.modify_display_name(display_name=display_name)
