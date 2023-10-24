@@ -7,8 +7,6 @@ LONG_DESCRIPTION = "An unofficial API wrapper for the social media app Lapse."
 with open("requirements.txt", 'r', encoding="utf-16") as f:
     requirements = [i.strip() for i in f.readlines()]
 
-print(requirements)
-
 setup(name='lapsepy',
       version=VERSION,
       description=DESCRIPTION,
