@@ -28,6 +28,11 @@ class Profile:
 
     @staticmethod
     def from_dict(profile_data: dict) -> "Profile":
+        """
+        Generates a Profile object from a dictionary with the necessary profile data
+        :param profile_data: Dictionary containing the necessary data.
+        :return: Profile object prefilled with the data.
+        """
         logger.debug("Creating new Profile object from dictionary.")
 
         pd = profile_data
@@ -59,6 +64,12 @@ class Snap:
 
     @staticmethod
     def from_dict(snap_data: dict) -> "Snap":
+        """
+        Generates a Snap object from a dictionary with the necessary snap data
+        :param snap_data: Dictionary containing the necessary data.
+        :return: Snap object prefilled with the data.
+        """
+
         logger.debug("Creating new Snap object from dictionary.")
 
         media = snap_data.get('media')
@@ -71,6 +82,15 @@ class Snap:
         )
 
     def load_filtered(self, quality: int, fl_keep_iptc: bool):
+        """
+        Loads the filtered Snap object's image into memory by making an HTTP request to Lapse's servers.
+        :param quality: Quality of the image (1-100)
+        seek https://cloudinary.com/documentation/transformation_reference#q_quality for more information.
+        :param fl_keep_iptc: Whether to keep copyright related material seek
+        https://cloudinary.com/documentation/transformation_reference#fl_keep_attribution for more information.
+
+        :return: Pillow image.
+        """
         url = f"{self.BASE_URL}q_{quality}" + (",fl_keep_itc/" if fl_keep_iptc else "/")
         url += f"{self.filtered_id}.jpeg"
 
@@ -82,6 +102,16 @@ class Snap:
         return image
 
     def load_original(self, quality: int, fl_keep_iptc: bool):
+        """
+        Loads the original Snap object's image into memory by making an HTTP request to Lapse's servers.
+        :param quality: Quality of the image (1-100)
+        seek https://cloudinary.com/documentation/transformation_reference#q_quality for more information.
+        :param fl_keep_iptc: Whether to keep copyright related material seek
+        https://cloudinary.com/documentation/transformation_reference#fl_keep_attribution for more information.
+
+        :return: Pillow image.
+        """
+
         url = f"{self.BASE_URL}q_{quality}" + (",fl_keep_itc" if fl_keep_iptc else "")
         url += f"{self.original_id}/original_0.jpeg"
 
@@ -94,6 +124,15 @@ class Snap:
         return image
 
     def load_snap(self, quality: int = 100, fl_keep_iptc: bool = True):
+        """
+        Returns a Pillow Image of either the filtered image or original image.
+        :param quality: Quality of the image (1-100)
+        seek https://cloudinary.com/documentation/transformation_reference#q_quality for more information.
+        :param fl_keep_iptc: Whether to keep copyright related material seek
+        https://cloudinary.com/documentation/transformation_reference#fl_keep_attribution for more information.
+
+        :return: Pillow image.
+        """
         if self.filtered_id is not None:
             logger.debug("Loading \"filtered\" image.")
             self.filtered = self.load_filtered(quality=quality, fl_keep_iptc=fl_keep_iptc)
