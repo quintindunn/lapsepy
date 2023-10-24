@@ -276,7 +276,7 @@ class Journal:
 
         logger.debug("Updated Emojis.")
 
-        if not response.get('data', dict()).get("SaveEmojis", dict()).get("success"):
+        if not response.get('data', dict()).get("saveEmojis", dict()).get("success"):
             raise SyncJournalException("Error saving emojis.")
 
     def modify_dob(self, dob: str):
@@ -289,8 +289,6 @@ class Journal:
         response = self._sync_journal_call(query)
 
         logger.debug("Updated Date Of Birth.")
-
-        print(response)
 
         if not response.get('data', dict()).get("saveDateOfBirth", dict()).get("success"):
             raise SyncJournalException("Error saving date of birth.")
