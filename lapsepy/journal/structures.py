@@ -81,7 +81,7 @@ class Snap:
             original_id = media['content'].get("original")
         )
 
-    def load_filtered(self, quality: int, fl_keep_iptc: bool):
+    def load_filtered(self, quality: int, fl_keep_iptc: bool) -> Image.Image:
         """
         Loads the filtered Snap object's image into memory by making an HTTP request to Lapse's servers.
         :param quality: Quality of the image (1-100)
@@ -101,7 +101,7 @@ class Snap:
         image = Image.open(bytes_io)
         return image
 
-    def load_original(self, quality: int, fl_keep_iptc: bool):
+    def load_original(self, quality: int, fl_keep_iptc: bool) -> Image.Image:
         """
         Loads the original Snap object's image into memory by making an HTTP request to Lapse's servers.
         :param quality: Quality of the image (1-100)
@@ -123,7 +123,7 @@ class Snap:
         image = Image.open(bytes_io)
         return image
 
-    def load_snap(self, quality: int = 100, fl_keep_iptc: bool = True):
+    def load_snap(self, quality: int = 100, fl_keep_iptc: bool = True) -> Image.Image:
         """
         Returns a Pillow Image of either the filtered image or original image.
         :param quality: Quality of the image (1-100)
