@@ -2,13 +2,14 @@
 Author: Quintin Dunn
 Date: 10/22/23
 """
-import io
-from datetime import datetime
 
-from PIL import Image
+import io
+import logging
 import requests
 
-import logging
+from datetime import datetime
+from PIL import Image
+
 logger = logging.getLogger("lapsepy.journal.structures.py")
 
 
@@ -20,9 +21,9 @@ class Profile:
     def __init__(self, user_id: str, username: str, display_name: str, profile_photo_name: str, bio: str):
         self.user_id: str = user_id
         self.username: str = username
-        self.user_display_name = display_name
-        self.profile_photo_name = profile_photo_name
-        self.bio = bio
+        self.user_display_name: str = display_name
+        self.profile_photo_name: str = profile_photo_name
+        self.bio: str = bio
         self.media: list[Snap] = []
 
     @staticmethod
@@ -31,11 +32,11 @@ class Profile:
 
         pd = profile_data
         return Profile(
-            user_id=pd.get('id'),
-            username=pd.get('username'),
-            display_name=pd.get('displayName'),
-            profile_photo_name=pd.get('profilePhotoName'),
-            bio=pd.get('bio')
+            user_id = pd.get('id'),
+            username = pd.get('username'),
+            display_name = pd.get('displayName'),
+            profile_photo_name = pd.get('profilePhotoName'),
+            bio = pd.get('bio')
         )
 
     def __str__(self):
@@ -47,7 +48,7 @@ class Snap:
 
     def __init__(self, seen: bool, taken_at: datetime, develops_at: datetime, filtered_id: str | None,
                  original_id: str | None):
-        self.seen = seen
+        self.seen: bool = seen
         self.taken_at: datetime = taken_at
         self.develops_at: datetime = develops_at
         self.filtered_id: str | None = filtered_id
@@ -60,14 +61,13 @@ class Snap:
     def from_dict(snap_data: dict) -> "Snap":
         logger.debug("Creating new Snap object from dictionary.")
 
-        sd = snap_data
-        md = snap_data.get('media')
+        media = snap_data.get('media')
         return Snap(
-            seen=sd.get('seen'),
-            taken_at=_dt_from_iso(md.get("takenAt")['isoString']),
-            develops_at=_dt_from_iso(md.get("developsAt")['isoString']),
-            filtered_id=md['content'].get("filtered"),
-            original_id=md['content'].get("original")
+            seen = snap_data.get('seen'),
+            taken_at = _dt_from_iso(media.get("takenAt")['isoString']),
+            develops_at = _dt_from_iso(media.get("developsAt")['isoString']),
+            filtered_id = media['content'].get("filtered"),
+            original_id = media['content'].get("original")
         )
 
     def load_filtered(self, quality: int, fl_keep_iptc: bool):
@@ -78,8 +78,8 @@ class Snap:
 
         request = requests.get(url)
         bytes_io = io.BytesIO(request.content)
-        im = Image.open(bytes_io)
-        return im
+        image = Image.open(bytes_io)
+        return image
 
     def load_original(self, quality: int, fl_keep_iptc: bool):
         url = f"{self.BASE_URL}q_{quality}" + (",fl_keep_itc" if fl_keep_iptc else "")
@@ -90,8 +90,8 @@ class Snap:
         request = requests.get(url)
         bytes_io = io.BytesIO(request.content)
 
-        im = Image.open(bytes_io)
-        return im
+        image = Image.open(bytes_io)
+        return image
 
     def load_snap(self, quality: int = 100, fl_keep_iptc: bool = True):
         if self.filtered_id is not None:
