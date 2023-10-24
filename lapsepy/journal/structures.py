@@ -37,11 +37,11 @@ class Profile:
 
         pd = profile_data
         return Profile(
-            user_id = pd.get('id'),
-            username = pd.get('username'),
-            display_name = pd.get('displayName'),
-            profile_photo_name = pd.get('profilePhotoName'),
-            bio = pd.get('bio')
+            user_id=pd.get('id'),
+            username=pd.get('username'),
+            display_name=pd.get('displayName'),
+            profile_photo_name=pd.get('profilePhotoName'),
+            bio=pd.get('bio')
         )
 
     def __str__(self):
@@ -74,11 +74,11 @@ class Snap:
 
         media = snap_data.get('media')
         return Snap(
-            seen = snap_data.get('seen'),
-            taken_at = _dt_from_iso(media.get("takenAt")['isoString']),
-            develops_at = _dt_from_iso(media.get("developsAt")['isoString']),
-            filtered_id = media['content'].get("filtered"),
-            original_id = media['content'].get("original")
+            seen=snap_data.get('seen'),
+            taken_at=_dt_from_iso(media.get("takenAt")['isoString']),
+            develops_at=_dt_from_iso(media.get("developsAt")['isoString']),
+            filtered_id=media['content'].get("filtered"),
+            original_id=media['content'].get("original")
         )
 
     def load_filtered(self, quality: int, fl_keep_iptc: bool) -> Image.Image:
