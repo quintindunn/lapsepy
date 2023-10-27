@@ -18,13 +18,19 @@ def _dt_from_iso(dt_str: str):
 
 
 class Profile:
-    def __init__(self, user_id: str, username: str, display_name: str, profile_photo_name: str, bio: str):
+    def __init__(self, user_id: str, username: str, display_name: str, profile_photo_name: str, bio: str | None,
+                 emojis: list[str], is_friends: bool, blocked_me: bool, kudos: int, tags: list[dict]):
         self.user_id: str = user_id
         self.username: str = username
         self.user_display_name: str = display_name
         self.profile_photo_name: str = profile_photo_name
         self.bio: str = bio
         self.media: list[Snap] = []
+        self.emojis: list[str] = emojis
+        self.is_friends: bool = is_friends
+        self.blocked_me: bool = blocked_me
+        self.kudos = kudos
+        self.tags = tags
 
     @staticmethod
     def from_dict(profile_data: dict) -> "Profile":
@@ -41,7 +47,12 @@ class Profile:
             username=pd.get('username'),
             display_name=pd.get('displayName'),
             profile_photo_name=pd.get('profilePhotoName'),
-            bio=pd.get('bio')
+            bio=pd.get('bio'),
+            is_friends=pd.get("friendStatus") == "FRIENDS",
+            blocked_me=pd.get('blockedMe'),
+            kudos=pd.get("kudos", {}).get("totalCount", -1),
+            tags=pd.get("tags"),
+            emojis=pd.get("emojis", {}).get("emojis")
         )
 
     def __str__(self):
