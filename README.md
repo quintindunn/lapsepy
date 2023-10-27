@@ -10,13 +10,14 @@ One of the most challenging parts of this project is authentication, it uses App
 
 ### How to get your refresh token (IOS):
 * Log out of the app
-* Install a proxy like [MitMProxy](https://mitmproxy.org/) (but don't enable it) **Make sure to install all certificates required. [Certificates](https://docs.mitmproxy.org/stable/concepts-certificates/)**
-* Open the Lapse app and enter your phone number and wait for the text with your verification code **Do not enter verification code yet.**.
-* Go to Settings -> Network -> <Your network> -> info -> proxy -> manual -> enter proxy information.
-* Enter your verification code.
+* Install [MitMProxy](https://mitmproxy.org/) **Make sure to install all certificates required. [Certificates](https://docs.mitmproxy.org/stable/concepts-certificates/)**
+* Start MitMWeb ignoring the host `register.appattest.apple.com` using `mitmweb --ignore-hosts register.appattest.apple.com`
+* Get your computer's ip address. Open your terminal and write `ipconfig`
+* On your phone go to Settings -> Network -> <Your network> -> info -> proxy -> manual and enter the proxy information.
+* Open the Lapse app and sign in.
 * Watch your proxies API calls for the second call to `https://auth.production.journal-api.lapse.app/verify` and inspect it.
 * Go to the Response tab, and set `view` to `json`
-* Copy the refreshToken line.
+* Copy the refresh token from the response.
 
 
 ## How to use examples:
