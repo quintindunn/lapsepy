@@ -165,7 +165,6 @@ class Journal:
         if file_uuid is None:
             # UUID in testing always started with "01HDCWT" with a total length of 26 chars.
             file_uuid = "01HDCWT" + str(uuid4()).upper().replace("-", "")[:19]
-            print(file_uuid)
 
         if im_id is None:
             # UUID in testing always started with "01HDCWT" with a total length of 26 chars.
