@@ -1,9 +1,17 @@
-# lapsepy
-A Python3 API Wrapper for the social media app Lapse.
+![LapsePy](./icon.png)
+<div align = "center">
+	<img src = "https://img.shields.io/pypi/v/lapsepy?label=PYPI%20Version">
+	<img src = "https://img.shields.io/pypi/l/lapsepy">
+	<img src = "https://img.shields.io/github/stars/quintindunn/lapsepy?label=GitHub%20Stars">
+</div>
 
+## Install
+```pip install lapsepy```
 
-## How to install:
-* You can install `lapsepy` through PyPi using `pip install lapsepy`
+## Features:
+* Modify your bio, display name, date of birth, emojis, and username. Many past what's allowed on the app!
+* Upload any image to your darkroom and make it develop at any time!
+* Get your friends feed, and download images.
 
 ## Getting your refresh token:
 One of the most challenging parts of this project is authentication, it uses Apple's App Attest in place of a captcha. As far as I'm aware there's no work around without jailbreaking your phone / using a modified version of the app. I'm planning on waiting for Lapse's Android version to try to reverse engineer it there.
