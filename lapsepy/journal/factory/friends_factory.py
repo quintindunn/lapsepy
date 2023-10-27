@@ -167,6 +167,8 @@ class SendKudosGQL(BaseGQL):
 
         self.variables = {}
 
+        self._render_variables()
+
     def _render_variables(self):
         self.variables['input'] = {
             "id": self.user_id
