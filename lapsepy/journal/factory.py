@@ -75,14 +75,6 @@ class CreateMediaGQL(BaseGQL):
             "timezone": self.timezone
         }
 
-    def to_dict(self):
-        return {
-            "operationName": self.operation_name,
-            "query": self.query,
-            "variables": self.variables,
-
-        }
-
 
 class SendInstantsGQL(BaseGQL):
     def __init__(self, user_id: str, file_uuid: str, im_id: str, caption: str, time_limit: int):
@@ -123,16 +115,6 @@ class SendInstantsGQL(BaseGQL):
             ]
         }
 
-    def to_dict(self):
-        """
-        :return: The GraphQL query as a dictionary, this is what is uploaded to the API.
-        """
-        return {
-            "operationName": self.operation_name,
-            "query": self.query,
-            "variables": self.variables
-        }
-
 
 class ImageUploadURLGQL(BaseGQL):
     """
@@ -160,13 +142,6 @@ class ImageUploadURLGQL(BaseGQL):
             self.variables["filename"] = f"{self.file_uuid}/filtered_0.heic"
         else:
             self.variables["filename"] = f"instant/{self.file_uuid}.heic"
-
-    def to_dict(self):
-        return {
-            "operationName": self.operation_name,
-            "query": self.query,
-            "variables": self.variables,
-        }
 
 
 class FriendsFeedItemsGQL(BaseGQL):
@@ -256,13 +231,6 @@ class FriendsFeedItemsGQL(BaseGQL):
         self.variables = {
             "before": self.before,
             "last": self.last
-        }
-
-    def to_dict(self):
-        return {
-            "operationName": self.operation_name,
-            "query": self.query,
-            "variables": self.variables,
         }
 
 
