@@ -5,6 +5,8 @@ import requests
 from datetime import datetime
 from PIL import Image
 
+from .snap import Snap
+
 logger = logging.getLogger("lapsepy.journal.structures.py")
 
 

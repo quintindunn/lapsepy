@@ -13,6 +13,10 @@ from PIL import Image
 logger = logging.getLogger("lapsepy.journal.structures.py")
 
 
+def _dt_from_iso(dt_str: str):
+    return datetime.fromisoformat(dt_str)
+
+
 class Snap:
     BASE_URL = "https://image.production.journal-api.lapse.app/image/upload/"
 
