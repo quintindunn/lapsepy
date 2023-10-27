@@ -8,7 +8,7 @@ from datetime import datetime
 from lapsepy.auth.refresher import refresh
 from lapsepy.journal.journal import Journal
 from lapsepy.journal.common.exceptions import AuthTokenExpired
-from lapsepy.journal.structures import Profile
+from lapsepy.journal.structures.profile import Profile
 
 import logging
 

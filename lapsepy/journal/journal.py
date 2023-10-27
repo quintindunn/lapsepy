@@ -18,7 +18,8 @@ from .factory.media_factory import ImageUploadURLGQL, CreateMediaGQL, SendInstan
 from lapsepy.journal.factory.profile_factory import SaveBioGQL, SaveDisplayNameGQL, SaveUsernameGQL, SaveEmojisGQL, \
     SaveDOBGQL
 
-from .structures import Profile, Snap
+from .structures.snap import Snap
+from .structures.profile import Profile
 
 import logging
 
