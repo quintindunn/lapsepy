@@ -283,7 +283,7 @@ class Journal:
 
         logger.debug("Updated Profile Bio.")
 
-        if not response.get('data', dict()).get("saveBio", dict()).get("success"):
+        if not response.get('data', {}).get("saveBio", {}).get("success"):
             raise SyncJournalException("Error saving bio.")
 
     def modify_display_name(self, display_name: str):
@@ -297,7 +297,7 @@ class Journal:
 
         logger.debug("Updated Display Name.")
 
-        if not response.get('data', dict()).get("saveDisplayName", dict()).get("success"):
+        if not response.get('data', {}).get("saveDisplayName", {}).get("success"):
             raise SyncJournalException("Error saving display name")
 
     def modify_username(self, username: str):
@@ -311,7 +311,7 @@ class Journal:
 
         logger.debug("Updated Username.")
 
-        if not response.get('data', dict()).get("saveUsername", dict()).get("success"):
+        if not response.get('data', {}).get("saveUsername", {}).get("success"):
             raise SyncJournalException("Error saving username.")
 
     def modify_emojis(self, emojis: list[str]):
@@ -325,7 +325,7 @@ class Journal:
 
         logger.debug("Updated Emojis.")
 
-        if not response.get('data', dict()).get("saveEmojis", dict()).get("success"):
+        if not response.get('data', {}).get("saveEmojis", {}).get("success"):
             raise SyncJournalException("Error saving emojis.")
 
     def modify_dob(self, dob: str):
@@ -339,5 +339,5 @@ class Journal:
 
         logger.debug("Updated Date Of Birth.")
 
-        if not response.get('data', dict()).get("saveDateOfBirth", dict()).get("success"):
+        if not response.get('data', {}).get("saveDateOfBirth", {}).get("success"):
             raise SyncJournalException("Error saving date of birth.")
