@@ -185,7 +185,12 @@ class Journal:
         :return:
         """
         query = SendKudosGQL(user_id=user_id).to_dict()
-        return self._sync_journal_call(query)
+        response = self._sync_journal_call(query)
+
+        if not response.get("data", {}).get("sendKudos", {}).get("success"):
+            raise SyncJournalException("Error sending kudos, could you already have reached your daily limit?")
+
+
 
     def get_friends_feed(self, count: int = 10) -> list[Profile]:
         """
