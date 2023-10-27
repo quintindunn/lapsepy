@@ -86,6 +86,17 @@ class Lapse:
         return self.journal.upload_instant(im=im, user_id=user, file_uuid=file_uuid, im_id=im_id, caption=caption,
                                            time_limit=time_limit)
 
+    def send_kudos(self, user: str | Profile):
+        """
+        Sends kudos (vibes) to a user.
+        :param user: ID / Object of user to send it to.
+        :return:
+        """
+        if isinstance(user, Profile):
+            user = user.user_id
+
+        self.journal.send_kudos(user)
+
     def get_friends_feed(self, count: int = 10):
         """
         Gets your friend upload feed.
