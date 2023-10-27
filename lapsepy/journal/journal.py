@@ -13,15 +13,15 @@ from PIL import Image
 
 import requests
 
-from .factory.friends_factory import FriendsFeedItemsGQL
+from .factory.friends_factory import FriendsFeedItemsGQL, ProfileDetailsGQL
 from .factory.media_factory import ImageUploadURLGQL, CreateMediaGQL, SendInstantsGQL
 from lapsepy.journal.factory.profile_factory import SaveBioGQL, SaveDisplayNameGQL, SaveUsernameGQL, SaveEmojisGQL, \
     SaveDOBGQL
 
-
 from .structures import Profile, Snap
 
 import logging
+
 logger = logging.getLogger("lapsepy.journal.journal.py")
 
 
@@ -55,7 +55,10 @@ class Journal:
         logger.debug(f"Making request to {self.request_url}")
 
         request = requests.post(self.request_url, headers=self.base_headers, json=query)
-        request.raise_for_status()
+        try:
+            request.raise_for_status()
+        except requests.exceptions.HTTPError:
+            raise requests.exceptions.HTTPError(request.text)
 
         errors = request.json().get("errors", [])
         if len(errors) > 0:
@@ -226,6 +229,48 @@ class Journal:
                 break
 
         return list(profiles.values())
+
+    def get_profile_by_id(self, user_id: str, album_limit: int = 6, friends_limit: int = 10) -> Profile:
+        """
+        Get a Profile object
+        :param user_id: ID the user of the profile you want to query.
+        :param album_limit: Max amount of albums to get.
+        :param friends_limit: Max amount of friends to get.
+        :return:
+        """
+        query = ProfileDetailsGQL(
+            user_id=user_id,
+            album_limit=album_limit,
+            friends_limit=friends_limit,
+            mutual_limit=1,
+            popular_limit=1
+        ).to_dict()
+        response = self._sync_journal_call(query)
+        pd = response.get("data", {}).get("profile", {})
+
+        def generate_profile_object(profile_data: dict) -> Profile:
+            return Profile(
+                bio=profile_data.get('bio'),
+                blocked_me=profile_data.get('blockedMe'),
+                display_name=profile_data.get('displayName'),
+                emojis=profile_data.get("emojis", {}).get("emojis"),
+                is_blocked=profile_data.get("isBlocked"),
+                is_friends=profile_data.get("friendStatus") == "FRIENDS",
+                kudos=profile_data.get("kudos", {}).get("totalCount", -1),
+                profile_photo_name=profile_data.get('profilePhotoName'),
+                tags=profile_data.get("tags"),
+                user_id=profile_data.get('id'),
+                username=profile_data.get('username'),
+            )
+
+        profile = generate_profile_object(pd)
+
+        # Generate friend objects
+        for friend in pd.get("friends", {}).get("edges"):
+            friend = generate_profile_object(friend.get("node", {}))
+            profile.friends.append(friend)
+
+        return profile
 
     def modify_bio(self, bio: str):
         """

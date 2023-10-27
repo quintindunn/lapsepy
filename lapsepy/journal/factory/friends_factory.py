@@ -10,6 +10,7 @@ class FriendsFeedItemsGQL(BaseGQL):
     """
     Gets items from friends feed.
     """
+
     def __init__(self, start_cursor: str | None = None):
         super().__init__(
             operation_name="FriendsFeedItemsGraphQLQuery",
@@ -93,4 +94,65 @@ class FriendsFeedItemsGQL(BaseGQL):
         self.variables = {
             "before": self.before,
             "last": self.last
+        }
+
+
+class ProfileDetailsGQL(BaseGQL):
+    def __init__(self, user_id: str, album_limit: int = 6, friends_limit: int = 10, mutual_limit: int = 3,
+                 popular_limit: int = 10):
+        super().__init__("ProfileDetailsGraphQLQuery", "query ProfileDetailsGraphQLQuery($id: ID!, $friendsLimit: "
+                                                       "Int!, $popularLimit: Int!, $mutualLimit: Int!, "
+                                                       "$albumsLimit: Int!) { profile(id: $id) { __typename "
+                                                       "...ProfileDetails friends(first: $friendsLimit) { "
+                                                       "__typename totalCount edges { __typename node { "
+                                                       "__typename ...ProfileDetails } } } popularFriends(first: "
+                                                       "$popularLimit) { __typename edges { __typename cursor "
+                                                       "node { __typename ...ProfileDetails } } } mutuals(first: "
+                                                       "$mutualLimit) { __typename totalCount edges { __typename "
+                                                       "node { __typename ...ProfileDetails } } } monthlyRecaps { "
+                                                       "__typename edges { __typename cursor node { __typename "
+                                                       "...MonthlyRecapDetails } } } albums(last: $albumsLimit) { "
+                                                       "__typename totalCount edges { __typename node { "
+                                                       "__typename ...AlbumDetails } } } } }\nfragment "
+                                                       "ProfileDetails on Profile { __typename id displayName "
+                                                       "profilePhotoName username bio emojis { __typename emojis "
+                                                       "} friendStatus isBlocked blockedMe hashedPhoneNumber "
+                                                       "joinedAt { __typename isoString } kudos { __typename "
+                                                       "emoji totalCount lastSentAt { __typename isoString } } "
+                                                       "selectsVideo { __typename ...RecapVideoDetails } music { "
+                                                       "__typename ...ProfileMusicDetails } tags { __typename "
+                                                       "type text } }\nfragment RecapVideoDetails on RecapVideo { "
+                                                       "__typename id videoFilename totalDuration interval media "
+                                                       "{ __typename imageFilename } }\nfragment "
+                                                       "ProfileMusicDetails on ProfileMusic { __typename artist "
+                                                       "artworkUrl duration songTitle songUrl }\nfragment "
+                                                       "MonthlyRecapDetails on MonthlyRecapVideo { __typename "
+                                                       "isCustomOrder visibility month { __typename date } music "
+                                                       "{ __typename ...ProfileMusicDetails } recapVideo { "
+                                                       "__typename ...RecapVideoDetails } }\nfragment "
+                                                       "AlbumDetails on Album { __typename id name visibility "
+                                                       "createdAt { __typename isoString } updatedAt { __typename "
+                                                       "isoString } createdBy { __typename ...ProfileDetails } "
+                                                       "media(first: 3) { __typename totalCount edges { "
+                                                       "__typename cursor node { __typename ...AlbumMediaDetails "
+                                                       "} } } }\nfragment AlbumMediaDetails on AlbumMedia { "
+                                                       "__typename addedAt { __typename isoString } media { "
+                                                       "__typename id } }")
+        self.user_id = user_id
+        self.album_limit = album_limit
+        self.friends_limit = friends_limit
+        self.mutual_limit = mutual_limit
+        self.popular_limit = popular_limit
+
+        self.variables = {}
+
+        self._render_variables()
+
+    def _render_variables(self):
+        self.variables = {
+              "albumsLimit": self.album_limit,
+              "friendsLimit": self.friends_limit,
+              "id": self.user_id,
+              "mutualLimit": self.mutual_limit,
+              "popularLimit": self.popular_limit
         }

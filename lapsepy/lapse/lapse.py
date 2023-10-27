@@ -8,6 +8,7 @@ from datetime import datetime
 from lapsepy.auth.refresher import refresh
 from lapsepy.journal.journal import Journal
 from lapsepy.journal.common.exceptions import AuthTokenExpired
+from lapsepy.journal.structures import Profile
 
 import logging
 
@@ -68,6 +69,16 @@ class Lapse:
         except AuthTokenExpired:
             logger.debug("Authentication token expired.")
             return self.journal.get_friends_feed(count=count)
+
+    def get_profile_by_id(self, user_id: str, album_limit: int = 6, friends_limit: int = 10) -> Profile:
+        """
+        Get a Profile object
+        :param user_id: ID the user of the profile you want to query.
+        :param album_limit: Max amount of albums to get.
+        :param friends_limit: Max amount of friends to get.
+        :return:
+        """
+        return self.journal.get_profile_by_id(user_id=user_id, album_limit=album_limit, friends_limit=friends_limit)
 
     def _refresh_auth_token(self) -> None:
         """

@@ -18,13 +18,29 @@ def _dt_from_iso(dt_str: str):
 
 
 class Profile:
-    def __init__(self, user_id: str, username: str, display_name: str, profile_photo_name: str, bio: str):
+    def __init__(self, user_id: str, username: str, display_name: str, profile_photo_name: str, bio: str | None,
+                 emojis: list[str], is_friends: bool, blocked_me: bool, kudos: int, tags: list[dict],
+                 is_blocked: bool = False, friends: list["Profile"] = None):
+        if friends is None:
+            friends = []
+
+        self.bio: str = bio
+        self.blocked_me: bool = blocked_me
+        self.user_display_name: str = display_name
+        self.emojis: list[str] = emojis
+        self.is_friends: bool = is_friends
+        self.kudos = kudos
+        self.profile_photo_name: str = profile_photo_name
+        self.tags = tags
         self.user_id: str = user_id
         self.username: str = username
-        self.user_display_name: str = display_name
-        self.profile_photo_name: str = profile_photo_name
-        self.bio: str = bio
         self.media: list[Snap] = []
+        self.is_blocked = is_blocked
+
+        self.friends: list["Profile"] = friends
+
+        self.profile_picture: Image.Image | None = None
+
 
     @staticmethod
     def from_dict(profile_data: dict) -> "Profile":
@@ -37,12 +53,41 @@ class Profile:
 
         pd = profile_data
         return Profile(
+            bio=pd.get('bio'),
+            blocked_me=pd.get('blockedMe'),
+            display_name=pd.get('displayName'),
+            emojis=pd.get("emojis", {}).get("emojis"),
+            is_friends=pd.get("friendStatus") == "FRIENDS",
+            kudos=pd.get("kudos", {}).get("totalCount", -1),
+            profile_photo_name=pd.get('profilePhotoName'),
+            tags=pd.get("tags"),
             user_id=pd.get('id'),
             username=pd.get('username'),
-            display_name=pd.get('displayName'),
-            profile_photo_name=pd.get('profilePhotoName'),
-            bio=pd.get('bio')
         )
+
+    def load_profile_picture(self, quality: int = 100, height: int | None = None) -> Image.Image:
+        """
+        Loads the Profile's profile picture into memory by making an HTTP request to Lapse's servers.
+        :param quality: Quality of the image (1-100)
+        seek https://cloudinary.com/documentation/transformation_reference#q_quality for more information.
+        :param height: Height of the image in pixels, width is determined by image aspect ratio. Leave as None to get
+        original height.
+
+        :return: Pillow image.
+        """
+        url = f"https://image.production.journal-api.lapse.app/image/upload/q_{quality}"
+        url += f",h_{height}" if height is not None else ""
+        url += f"//{self.profile_photo_name}.jpg"
+
+        logger.debug(f"Getting profile image from \"{url}\"")
+
+        request = requests.get(url)
+        bytes_io = io.BytesIO(request.content)
+        image = Image.open(bytes_io)
+
+        self.profile_picture = image
+
+        return image
 
     def __str__(self):
         return f"<Lapse profile \"{self.username}\" {self.user_id}>"
