@@ -88,6 +88,11 @@ class Profile:
 
         return image
 
+    def send_instant(self, ctx, im: Image, file_uuid: str | None = None, im_id: str | None = None,
+                     caption: str | None = None, time_limit: int = 10):
+        return ctx.upload_instant(im=im, user=self, file_uuid=file_uuid, im_id=im_id, caption=caption,
+                                  time_limit=time_limit)
+
     def __str__(self):
         return f"<Lapse profile \"{self.username}\" {self.user_id}>"
 

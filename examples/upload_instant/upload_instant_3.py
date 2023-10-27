@@ -8,4 +8,8 @@ if __name__ == '__main__':
 
     # Develop in 15 seconds
     friend_id = input("Friend UUID: ")
-    lapse.upload_instant(im=upload_im, user=friend_id, caption="Automatic test")
+
+    # Get friend object
+    friend = lapse.get_profile_by_id(friend_id)
+
+    friend.send_instant(ctx=lapse, im=upload_im, caption="Automatic test")
