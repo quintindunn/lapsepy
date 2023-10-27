@@ -230,15 +230,20 @@ class Journal:
 
         return list(profiles.values())
 
-    # TODO: Add docstring
-    def get_profile_by_id(self, user_id: str, album_limit: int = 6, friends_limit: int = 10, mutual_limit: int = 3,
-                          popular_limit: int = 10) -> Profile:
+    def get_profile_by_id(self, user_id: str, album_limit: int = 6, friends_limit: int = 10) -> Profile:
+        """
+        Get a Profile object
+        :param user_id: ID the user of the profile you want to query.
+        :param album_limit: Max amount of albums to get.
+        :param friends_limit: Max amount of friends to get.
+        :return:
+        """
         query = ProfileDetailsGQL(
             user_id=user_id,
             album_limit=album_limit,
             friends_limit=friends_limit,
-            mutual_limit=mutual_limit,
-            popular_limit=popular_limit
+            mutual_limit=1,
+            popular_limit=1
         ).to_dict()
         response = self._sync_journal_call(query)
         pd = response.get("data", {}).get("profile", {})

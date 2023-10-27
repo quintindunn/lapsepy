@@ -70,11 +70,15 @@ class Lapse:
             logger.debug("Authentication token expired.")
             return self.journal.get_friends_feed(count=count)
 
-    # TODO: Add docstring
-    def get_profile_by_id(self, user_id: str, album_limit: int = 6, friends_limit: int = 10, mutual_limit: int = 3,
-                          popular_limit: int = 10) -> Profile:
-        return self.journal.get_profile_by_id(user_id=user_id, album_limit=album_limit, friends_limit=friends_limit,
-                                              mutual_limit=mutual_limit, popular_limit=popular_limit)
+    def get_profile_by_id(self, user_id: str, album_limit: int = 6, friends_limit: int = 10) -> Profile:
+        """
+        Get a Profile object
+        :param user_id: ID the user of the profile you want to query.
+        :param album_limit: Max amount of albums to get.
+        :param friends_limit: Max amount of friends to get.
+        :return:
+        """
+        return self.journal.get_profile_by_id(user_id=user_id, album_limit=album_limit, friends_limit=friends_limit)
 
     def _refresh_auth_token(self) -> None:
         """
