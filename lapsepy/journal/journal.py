@@ -13,12 +13,13 @@ from PIL import Image
 
 import requests
 
-from .factory.friends_factory import FriendsFeedItemsGQL, ProfileDetailsGQL
+from .factory.friends_factory import FriendsFeedItemsGQL, ProfileDetailsGQL, SendKudosGQL
 from .factory.media_factory import ImageUploadURLGQL, CreateMediaGQL, SendInstantsGQL
 from lapsepy.journal.factory.profile_factory import SaveBioGQL, SaveDisplayNameGQL, SaveUsernameGQL, SaveEmojisGQL, \
     SaveDOBGQL
 
-from .structures import Profile, Snap
+from .structures.snap import Snap
+from .structures.profile import Profile
 
 import logging
 
@@ -176,6 +177,20 @@ class Journal:
         query = SendInstantsGQL(user_id=user_id, file_uuid=file_uuid, im_id=im_id, caption=caption,
                                 time_limit=time_limit).to_dict()
         self._sync_journal_call(query)
+
+    def send_kudos(self, user_id: str):
+        """
+        Sends kudos (vibes) to a given user
+        :param user_id: id of the user to send kudos to.
+        :return:
+        """
+        query = SendKudosGQL(user_id=user_id).to_dict()
+        response = self._sync_journal_call(query)
+
+        if not response.get("data", {}).get("sendKudos", {}).get("success"):
+            raise SyncJournalException("Error sending kudos, could you already have reached your daily limit?")
+
+
 
     def get_friends_feed(self, count: int = 10) -> list[Profile]:
         """
