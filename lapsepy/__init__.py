@@ -3,7 +3,7 @@ Author: Quintin Dunn
 Date: 10/22/23
 """
 
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 
 from .journal import Journal
 from .auth.refresher import refresh
