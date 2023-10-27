@@ -32,6 +32,8 @@ class Profile:
         self.username: str = username
         self.media: list[Snap] = []
 
+        self.profile_picture: Image.Image | None = None
+
     @staticmethod
     def from_dict(profile_data: dict) -> "Profile":
         """
@@ -54,6 +56,30 @@ class Profile:
             user_id=pd.get('id'),
             username=pd.get('username'),
         )
+
+    def load_profile_picture(self, quality: int = 100, height: int | None = None) -> Image.Image:
+        """
+        Loads the Profile's profile picture into memory by making an HTTP request to Lapse's servers.
+        :param quality: Quality of the image (1-100)
+        seek https://cloudinary.com/documentation/transformation_reference#q_quality for more information.
+        :param height: Height of the image in pixels, width is determined by image aspect ratio. Leave as None to get
+        original height.
+
+        :return: Pillow image.
+        """
+        url = f"https://image.production.journal-api.lapse.app/image/upload/q_{quality}"
+        url += f",h_{height}" if height is not None else ""
+        url += f"//{self.profile_photo_name}.jpg"
+
+        logger.debug(f"Getting profile image from \"{url}\"")
+
+        request = requests.get(url)
+        bytes_io = io.BytesIO(request.content)
+        image = Image.open(bytes_io)
+
+        self.profile_picture = image
+
+        return image
 
     def __str__(self):
         return f"<Lapse profile \"{self.username}\" {self.user_id}>"
