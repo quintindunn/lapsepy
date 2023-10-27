@@ -41,10 +41,6 @@ class Journal:
             "authorization": authorization
         }
 
-    def refresh_authorization(self, new_token: str):
-        self.base_headers['authorization'] = new_token
-        logger.debug("Refreshed authorization in Journal")
-
     def _sync_journal_call(self, query: dict) -> dict:
         """
         Makes an API call to "https://sync-service.production.journal-api.lapse.app/graphql" with an arbitrary query.
@@ -66,16 +62,6 @@ class Journal:
             raise sync_journal_exception_router(error=errors[0])
 
         return request.json()
-
-    def image_upload_url_call(self, file_uuid: str, is_instant: bool = False) -> str:
-        """
-        Creates an API call to the sync-service graphql API to start the image upload process
-        :param file_uuid: uuid of image to upload.
-        :param is_instant: Whether the image being uploaded is for an instant
-        :return: AWS URL the PUT the image on.
-        """
-        query = ImageUploadURLGQL(file_uuid=file_uuid, is_instant=is_instant).to_dict()
-        return self._sync_journal_call(query=query).get("data").get("imageUploadURL")
 
     @staticmethod
     def _upload_image_to_aws(im: Image, upload_url: str):
@@ -99,6 +85,20 @@ class Journal:
         logger.debug("Uploading image to AWS server.")
         aws_request = requests.put(upload_url, headers=aws_headers, data=im_data)
         aws_request.raise_for_status()
+
+    def refresh_authorization(self, new_token: str):
+        self.base_headers['authorization'] = new_token
+        logger.debug("Refreshed authorization in Journal")
+
+    def image_upload_url_call(self, file_uuid: str, is_instant: bool = False) -> str:
+        """
+        Creates an API call to the sync-service graphql API to start the image upload process
+        :param file_uuid: uuid of image to upload.
+        :param is_instant: Whether the image being uploaded is for an instant
+        :return: AWS URL the PUT the image on.
+        """
+        query = ImageUploadURLGQL(file_uuid=file_uuid, is_instant=is_instant).to_dict()
+        return self._sync_journal_call(query=query).get("data").get("imageUploadURL")
 
     def upload_photo(self, im: Image.Image, develop_in: int, file_uuid: str | None = None,
                      taken_at: datetime | None = None, color_temperature: float = 6000, exposure_value: float = 9,
@@ -283,7 +283,7 @@ class Journal:
 
         logger.debug("Updated Profile Bio.")
 
-        if not response.get('data', dict()).get("saveBio", dict()).get("success"):
+        if not response.get('data', {}).get("saveBio", {}).get("success"):
             raise SyncJournalException("Error saving bio.")
 
     def modify_display_name(self, display_name: str):
@@ -297,7 +297,7 @@ class Journal:
 
         logger.debug("Updated Display Name.")
 
-        if not response.get('data', dict()).get("saveDisplayName", dict()).get("success"):
+        if not response.get('data', {}).get("saveDisplayName", {}).get("success"):
             raise SyncJournalException("Error saving display name")
 
     def modify_username(self, username: str):
@@ -311,7 +311,7 @@ class Journal:
 
         logger.debug("Updated Username.")
 
-        if not response.get('data', dict()).get("saveUsername", dict()).get("success"):
+        if not response.get('data', {}).get("saveUsername", {}).get("success"):
             raise SyncJournalException("Error saving username.")
 
     def modify_emojis(self, emojis: list[str]):
@@ -325,7 +325,7 @@ class Journal:
 
         logger.debug("Updated Emojis.")
 
-        if not response.get('data', dict()).get("saveEmojis", dict()).get("success"):
+        if not response.get('data', {}).get("saveEmojis", {}).get("success"):
             raise SyncJournalException("Error saving emojis.")
 
     def modify_dob(self, dob: str):
@@ -339,5 +339,5 @@ class Journal:
 
         logger.debug("Updated Date Of Birth.")
 
-        if not response.get('data', dict()).get("saveDateOfBirth", dict()).get("success"):
+        if not response.get('data', {}).get("saveDateOfBirth", {}).get("success"):
             raise SyncJournalException("Error saving date of birth.")

@@ -22,6 +22,15 @@ class Lapse:
         self.journal = Journal(authorization=self.auth_token)
         self._refresh_auth_token()
 
+    def _refresh_auth_token(self) -> None:
+        """
+        Refreshes auth token in all subclasses that use the auth token.
+        :return: None
+        """
+        logger.debug("Refreshing lapse authentication token.")
+        self.auth_token = refresh(self.refresh_token)
+        self.journal.refresh_authorization(self.auth_token)
+
     def upload_photo(self, im: Image,
                      develop_in: int,
                      file_uuid: str | None = None,
@@ -58,6 +67,21 @@ class Lapse:
                                              flash=flash,
                                              timezone=timezone)
 
+    def upload_instant(self, im: Image, user_id: str, file_uuid: str | None = None, im_id: str | None = None,
+                       caption: str | None = None, time_limit: int = 10):
+        """
+        Uploads an instant to Lapse server and sends it to a profile.
+        :param im: Pillow Image object of the image.
+        :param user_id: ID of user to send it to.
+        :param file_uuid: UUID of the file, leave this to None unless you know what you're doing
+        :param im_id: UUID of the instant, leave this to None unless you know what you're doing
+        :param caption: Caption of the instant
+        :param time_limit: How long they can view the instant for
+        :return:
+        """
+        return self.journal.upload_instant(im=im, user_id=user_id, file_uuid=file_uuid, im_id=im_id, caption=caption,
+                                           time_limit=time_limit)
+
     def get_friends_feed(self, count: int = 10):
         """
         Gets your friend upload feed.
@@ -79,30 +103,6 @@ class Lapse:
         :return:
         """
         return self.journal.get_profile_by_id(user_id=user_id, album_limit=album_limit, friends_limit=friends_limit)
-
-    def _refresh_auth_token(self) -> None:
-        """
-        Refreshes auth token in all subclasses that use the auth token.
-        :return: None
-        """
-        logger.debug("Refreshing lapse authentication token.")
-        self.auth_token = refresh(self.refresh_token)
-        self.journal.refresh_authorization(self.auth_token)
-
-    def upload_instant(self, im: Image, user_id: str, file_uuid: str | None = None, im_id: str | None = None,
-                       caption: str | None = None, time_limit: int = 10):
-        """
-        Uploads an instant to Lapse server and sends it to a profile.
-        :param im: Pillow Image object of the image.
-        :param user_id: ID of user to send it to.
-        :param file_uuid: UUID of the file, leave this to None unless you know what you're doing
-        :param im_id: UUID of the instant, leave this to None unless you know what you're doing
-        :param caption: Caption of the instant
-        :param time_limit: How long they can view the instant for
-        :return:
-        """
-        return self.journal.upload_instant(im=im, user_id=user_id, file_uuid=file_uuid, im_id=im_id, caption=caption,
-                                           time_limit=time_limit)
 
     def update_bio(self, bio: str):
         """

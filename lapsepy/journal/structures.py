@@ -41,7 +41,6 @@ class Profile:
 
         self.profile_picture: Image.Image | None = None
 
-
     @staticmethod
     def from_dict(profile_data: dict) -> "Profile":
         """
