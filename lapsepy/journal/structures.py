@@ -20,7 +20,10 @@ def _dt_from_iso(dt_str: str):
 class Profile:
     def __init__(self, user_id: str, username: str, display_name: str, profile_photo_name: str, bio: str | None,
                  emojis: list[str], is_friends: bool, blocked_me: bool, kudos: int, tags: list[dict],
-                 is_blocked: bool = False):
+                 is_blocked: bool = False, friends: list["Profile"] = None):
+        if friends is None:
+            friends = []
+
         self.bio: str = bio
         self.blocked_me: bool = blocked_me
         self.user_display_name: str = display_name
@@ -34,7 +37,10 @@ class Profile:
         self.media: list[Snap] = []
         self.is_blocked = is_blocked
 
+        self.friends: list["Profile"] = friends
+
         self.profile_picture: Image.Image | None = None
+
 
     @staticmethod
     def from_dict(profile_data: dict) -> "Profile":

@@ -7,7 +7,7 @@ if __name__ == '__main__':
 
     profile_id = input("Profile ID: ")
 
-    profile = lapse.get_profile_by_id(profile_id)
+    profile = lapse.get_profile_by_id(profile_id, friends_limit=100)
 
     print(profile.username, profile.user_display_name)
 

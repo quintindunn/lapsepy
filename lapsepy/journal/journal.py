@@ -241,22 +241,29 @@ class Journal:
             popular_limit=popular_limit
         ).to_dict()
         response = self._sync_journal_call(query)
-
         pd = response.get("data", {}).get("profile", {})
 
-        profile = Profile(
-            bio=pd.get('bio'),
-            blocked_me=pd.get('blockedMe'),
-            display_name=pd.get('displayName'),
-            emojis=pd.get("emojis", {}).get("emojis"),
-            is_blocked=pd.get("isBlocked"),
-            is_friends=pd.get("friendStatus") == "FRIENDS",
-            kudos=pd.get("kudos", {}).get("totalCount", -1),
-            profile_photo_name=pd.get('profilePhotoName'),
-            tags=pd.get("tags"),
-            user_id=pd.get('id'),
-            username=pd.get('username'),
-        )
+        def generate_profile_object(profile_data: dict) -> Profile:
+            return Profile(
+                bio=profile_data.get('bio'),
+                blocked_me=profile_data.get('blockedMe'),
+                display_name=profile_data.get('displayName'),
+                emojis=profile_data.get("emojis", {}).get("emojis"),
+                is_blocked=profile_data.get("isBlocked"),
+                is_friends=profile_data.get("friendStatus") == "FRIENDS",
+                kudos=profile_data.get("kudos", {}).get("totalCount", -1),
+                profile_photo_name=profile_data.get('profilePhotoName'),
+                tags=profile_data.get("tags"),
+                user_id=profile_data.get('id'),
+                username=profile_data.get('username'),
+            )
+
+        profile = generate_profile_object(pd)
+
+        # Generate friend objects
+        for friend in pd.get("friends", {}).get("edges"):
+            friend = generate_profile_object(friend.get("node", {}))
+            profile.friends.append(friend)
 
         return profile
 
