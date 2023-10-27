@@ -1,3 +1,8 @@
+"""
+Author: Quintin Dunn
+Date: 10/22/23
+"""
+
 from lapsepy.journal.factory.factory import BaseGQL
 
 from datetime import datetime, timedelta
