@@ -156,3 +156,18 @@ class ProfileDetailsGQL(BaseGQL):
               "mutualLimit": self.mutual_limit,
               "popularLimit": self.popular_limit
         }
+
+
+class SendKudosGQL(BaseGQL):
+    def __init__(self, user_id: str):
+        super().__init__("SendKudosGraphQLMutation", "mutation SendKudosGraphQLMutation($input: SendKudosInput!) "
+                                                     "{ sendKudos(input: $input) { __typename success } }")
+
+        self.user_id = user_id
+
+        self.variables = {}
+
+    def _render_variables(self):
+        self.variables['input'] = {
+            "id": self.user_id
+        }
