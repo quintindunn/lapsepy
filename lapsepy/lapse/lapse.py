@@ -67,19 +67,23 @@ class Lapse:
                                              flash=flash,
                                              timezone=timezone)
 
-    def upload_instant(self, im: Image, user_id: str, file_uuid: str | None = None, im_id: str | None = None,
+    def upload_instant(self, im: Image, user: str | Profile, file_uuid: str | None = None, im_id: str | None = None,
                        caption: str | None = None, time_limit: int = 10):
         """
         Uploads an instant to Lapse server and sends it to a profile.
         :param im: Pillow Image object of the image.
-        :param user_id: ID of user to send it to.
+        :param user: ID / Object of user to send it to.
         :param file_uuid: UUID of the file, leave this to None unless you know what you're doing
         :param im_id: UUID of the instant, leave this to None unless you know what you're doing
         :param caption: Caption of the instant
         :param time_limit: How long they can view the instant for
         :return:
         """
-        return self.journal.upload_instant(im=im, user_id=user_id, file_uuid=file_uuid, im_id=im_id, caption=caption,
+
+        if isinstance(user, Profile):
+            user = user.user_id
+
+        return self.journal.upload_instant(im=im, user_id=user, file_uuid=file_uuid, im_id=im_id, caption=caption,
                                            time_limit=time_limit)
 
     def get_friends_feed(self, count: int = 10):
