@@ -19,7 +19,8 @@ def _dt_from_iso(dt_str: str):
 
 class Profile:
     def __init__(self, user_id: str, username: str, display_name: str, profile_photo_name: str, bio: str | None,
-                 emojis: list[str], is_friends: bool, blocked_me: bool, kudos: int, tags: list[dict]):
+                 emojis: list[str], is_friends: bool, blocked_me: bool, kudos: int, tags: list[dict],
+                 is_blocked: bool = False):
         self.bio: str = bio
         self.blocked_me: bool = blocked_me
         self.user_display_name: str = display_name
@@ -31,6 +32,7 @@ class Profile:
         self.user_id: str = user_id
         self.username: str = username
         self.media: list[Snap] = []
+        self.is_blocked = is_blocked
 
         self.profile_picture: Image.Image | None = None
 

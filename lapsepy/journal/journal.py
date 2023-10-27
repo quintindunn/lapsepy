@@ -13,15 +13,15 @@ from PIL import Image
 
 import requests
 
-from .factory.friends_factory import FriendsFeedItemsGQL
+from .factory.friends_factory import FriendsFeedItemsGQL, ProfileDetailsGQL
 from .factory.media_factory import ImageUploadURLGQL, CreateMediaGQL, SendInstantsGQL
 from lapsepy.journal.factory.profile_factory import SaveBioGQL, SaveDisplayNameGQL, SaveUsernameGQL, SaveEmojisGQL, \
     SaveDOBGQL
 
-
 from .structures import Profile, Snap
 
 import logging
+
 logger = logging.getLogger("lapsepy.journal.journal.py")
 
 
@@ -55,7 +55,10 @@ class Journal:
         logger.debug(f"Making request to {self.request_url}")
 
         request = requests.post(self.request_url, headers=self.base_headers, json=query)
-        request.raise_for_status()
+        try:
+            request.raise_for_status()
+        except requests.exceptions.HTTPError:
+            raise requests.exceptions.HTTPError(request.text)
 
         errors = request.json().get("errors", [])
         if len(errors) > 0:
@@ -226,6 +229,36 @@ class Journal:
                 break
 
         return list(profiles.values())
+
+    # TODO: Add docstring
+    def get_profile_by_id(self, user_id: str, album_limit: int = 6, friends_limit: int = 10, mutual_limit: int = 3,
+                          popular_limit: int = 10) -> Profile:
+        query = ProfileDetailsGQL(
+            user_id=user_id,
+            album_limit=album_limit,
+            friends_limit=friends_limit,
+            mutual_limit=mutual_limit,
+            popular_limit=popular_limit
+        ).to_dict()
+        response = self._sync_journal_call(query)
+
+        pd = response.get("data", {}).get("profile", {})
+
+        profile = Profile(
+            bio=pd.get('bio'),
+            blocked_me=pd.get('blockedMe'),
+            display_name=pd.get('displayName'),
+            emojis=pd.get("emojis", {}).get("emojis"),
+            is_blocked=pd.get("isBlocked"),
+            is_friends=pd.get("friendStatus") == "FRIENDS",
+            kudos=pd.get("kudos", {}).get("totalCount", -1),
+            profile_photo_name=pd.get('profilePhotoName'),
+            tags=pd.get("tags"),
+            user_id=pd.get('id'),
+            username=pd.get('username'),
+        )
+
+        return profile
 
     def modify_bio(self, bio: str):
         """
