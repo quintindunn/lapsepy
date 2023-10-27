@@ -13,8 +13,12 @@ from PIL import Image
 
 import requests
 
-from .factory import ImageUploadURLGQL, CreateMediaGQL, SendInstantsGQL, FriendsFeedItemsGQL, SaveBioGQL, \
-    SaveDisplayNameGQL, SaveUsernameGQL, SaveEmojisGQL, SaveDOBGQL
+from .factory.friends_factory import FriendsFeedItemsGQL
+from .factory.media_factory import ImageUploadURLGQL, CreateMediaGQL, SendInstantsGQL
+from lapsepy.journal.factory.profile_factory import SaveBioGQL, SaveDisplayNameGQL, SaveUsernameGQL, SaveEmojisGQL, \
+    SaveDOBGQL
+
+
 from .structures import Profile, Snap
 
 import logging
