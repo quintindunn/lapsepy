@@ -245,7 +245,7 @@ class Journal:
             if music is not None:
                 profile_music = ProfileMusic(
                     artist=music.get("artist"),
-                    artwork_url=music.get("artwork"),
+                    artwork_url=music.get("artworkUrl"),
                     duration=music.get("duration"),
                     song_title=music.get("songTitle"),
                     song_url=music.get("songUrl")

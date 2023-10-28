@@ -3,7 +3,9 @@ import logging
 import requests
 
 from datetime import datetime
+
 from PIL import Image
+import io
 
 from .snap import Snap
 
@@ -54,7 +56,7 @@ class Profile:
         if music is not None:
             profile_music = ProfileMusic(
                 artist=music.get("artist"),
-                artwork_url=music.get("artwork"),
+                artwork_url=music.get("artworkUrl"),
                 duration=music.get("duration"),
                 song_title=music.get("songTitle"),
                 song_url=music.get("songUrl")
@@ -116,3 +118,24 @@ class ProfileMusic:
         self.duration = duration
         self.song_title = song_title
         self.song_url = song_url
+
+        self.song: None | bytes = None
+        self.artwork: None | Image.Image = None
+
+    def load(self):
+        """
+        Loads the song, and artwork into memory
+        :return: None
+        """
+        # Get song
+        request = requests.get(self.song_url)
+        request.raise_for_status()
+        self.song = request.content
+
+        # Get artwork
+        if self.artwork_url:
+            request = requests.get(self.artwork_url)
+            request.raise_for_status()
+
+            bytes_io = io.BytesIO(request.content)
+            self.artwork = Image.open(bytes_io)
