@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-VERSION = "0.2.0"
+VERSION = "0.2.1"
 DESCRIPTION = "A Python API wrapper for the social media app Lapse."
 
 with open("README.md", 'r') as f:
@@ -9,8 +9,7 @@ with open("README.md", 'r') as f:
 with open("requirements.txt", 'r', encoding="utf-16") as f:
     requirements = [i.strip() for i in f.readlines()]
 
-with open("LICENSE", 'r') as f:
-    LICENSE = f.read()
+LICENSE = "MIT"
 
 setup(name='lapsepy',
       version=VERSION,
