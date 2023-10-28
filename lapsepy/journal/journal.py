@@ -196,8 +196,6 @@ class Journal:
         :return: A list of profiles
         """
 
-        nodes = []
-
         # Get all the user's friends in the range.
         query = FriendsFeedItemsGQL(last=count).to_dict()
         response = self._sync_journal_call(query)
