@@ -9,8 +9,7 @@ with open("README.md", 'r') as f:
 with open("requirements.txt", 'r', encoding="utf-16") as f:
     requirements = [i.strip() for i in f.readlines()]
 
-with open("LICENSE", 'r') as f:
-    LICENSE = f.read()
+LICENSE = "MIT"
 
 setup(name='lapsepy',
       version=VERSION,
