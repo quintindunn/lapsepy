@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-VERSION = "0.2.0"
+VERSION = "0.2.1"
 DESCRIPTION = "A Python API wrapper for the social media app Lapse."
 
 with open("README.md", 'r') as f:
