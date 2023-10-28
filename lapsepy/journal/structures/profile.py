@@ -17,7 +17,7 @@ def _dt_from_iso(dt_str: str):
 class Profile:
     def __init__(self, user_id: str, username: str, display_name: str, profile_photo_name: str, bio: str | None,
                  emojis: list[str], is_friends: bool, blocked_me: bool, kudos: int, tags: list[dict],
-                 is_blocked: bool = False, friends: list["Profile"] = None):
+                 is_blocked: bool = False, friends: list["Profile"] = None, profile_music: "ProfileMusic" = None):
         if friends is None:
             friends = []
 
@@ -35,6 +35,7 @@ class Profile:
         self.is_blocked = is_blocked
 
         self.friends: list["Profile"] = friends
+        self.profile_music = profile_music
 
         self.profile_picture: Image.Image | None = None
 
@@ -92,3 +93,12 @@ class Profile:
 
     def __str__(self):
         return f"<Lapse profile \"{self.username}\" {self.user_id}>"
+
+
+class ProfileMusic:
+    def __init__(self, artist: str, artwork_url: str, duration: int, song_title: str, song_url: str):
+        self.artist = artist
+        self.artwork_url = artwork_url
+        self.duration = duration
+        self.song_title = song_title
+        self.song_url = song_url
