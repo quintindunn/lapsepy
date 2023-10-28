@@ -3,7 +3,9 @@ import logging
 import requests
 
 from datetime import datetime
+
 from PIL import Image
+import io
 
 from .snap import Snap
 
@@ -17,7 +19,7 @@ def _dt_from_iso(dt_str: str):
 class Profile:
     def __init__(self, user_id: str, username: str, display_name: str, profile_photo_name: str, bio: str | None,
                  emojis: list[str], is_friends: bool, blocked_me: bool, kudos: int, tags: list[dict],
-                 is_blocked: bool = False, friends: list["Profile"] = None):
+                 is_blocked: bool = False, friends: list["Profile"] = None, profile_music: "ProfileMusic" = None):
         if friends is None:
             friends = []
 
@@ -35,6 +37,7 @@ class Profile:
         self.is_blocked = is_blocked
 
         self.friends: list["Profile"] = friends
+        self.profile_music = profile_music
 
         self.profile_picture: Image.Image | None = None
 
@@ -48,6 +51,19 @@ class Profile:
         logger.debug("Creating new Profile object from dictionary.")
 
         pd = profile_data
+
+        music = pd.get("music", {})
+        if music is not None:
+            profile_music = ProfileMusic(
+                artist=music.get("artist"),
+                artwork_url=music.get("artworkUrl"),
+                duration=music.get("duration"),
+                song_title=music.get("songTitle"),
+                song_url=music.get("songUrl")
+            )
+        else:
+            profile_music = None
+
         return Profile(
             bio=pd.get('bio'),
             blocked_me=pd.get('blockedMe'),
@@ -59,6 +75,7 @@ class Profile:
             tags=pd.get("tags"),
             user_id=pd.get('id'),
             username=pd.get('username'),
+            profile_music=profile_music
         )
 
     def load_profile_picture(self, quality: int = 100, height: int | None = None) -> Image.Image:
@@ -92,3 +109,33 @@ class Profile:
 
     def __str__(self):
         return f"<Lapse profile \"{self.username}\" {self.user_id}>"
+
+
+class ProfileMusic:
+    def __init__(self, artist: str, artwork_url: str, duration: int, song_title: str, song_url: str):
+        self.artist = artist
+        self.artwork_url = artwork_url
+        self.duration = duration
+        self.song_title = song_title
+        self.song_url = song_url
+
+        self.song: None | bytes = None
+        self.artwork: None | Image.Image = None
+
+    def load(self):
+        """
+        Loads the song, and artwork into memory
+        :return: None
+        """
+        # Get song
+        request = requests.get(self.song_url)
+        request.raise_for_status()
+        self.song = request.content
+
+        # Get artwork
+        if self.artwork_url:
+            request = requests.get(self.artwork_url)
+            request.raise_for_status()
+
+            bytes_io = io.BytesIO(request.content)
+            self.artwork = Image.open(bytes_io)

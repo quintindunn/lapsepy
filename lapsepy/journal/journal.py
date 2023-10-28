@@ -18,7 +18,7 @@ from .factory.media_factory import ImageUploadURLGQL, CreateMediaGQL, SendInstan
 from lapsepy.journal.factory.profile_factory import SaveBioGQL, SaveDisplayNameGQL, SaveUsernameGQL, SaveEmojisGQL, \
     SaveDOBGQL
 
-from .structures import Snap, Profile, FriendsFeed, FriendNode
+from .structures import Snap, Profile, ProfileMusic, FriendsFeed, FriendNode
 
 import logging
 
@@ -241,6 +241,18 @@ class Journal:
         pd = response.get("data", {}).get("profile", {})
 
         def generate_profile_object(profile_data: dict) -> Profile:
+            music = profile_data.get("music", {})
+            if music is not None:
+                profile_music = ProfileMusic(
+                    artist=music.get("artist"),
+                    artwork_url=music.get("artworkUrl"),
+                    duration=music.get("duration"),
+                    song_title=music.get("songTitle"),
+                    song_url=music.get("songUrl")
+                )
+            else:
+                profile_music = None
+
             return Profile(
                 bio=profile_data.get('bio'),
                 blocked_me=profile_data.get('blockedMe'),
@@ -253,6 +265,7 @@ class Journal:
                 tags=profile_data.get("tags"),
                 user_id=profile_data.get('id'),
                 username=profile_data.get('username'),
+                profile_music=profile_music
             )
 
         profile = generate_profile_object(pd)
