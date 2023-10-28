@@ -49,6 +49,19 @@ class Profile:
         logger.debug("Creating new Profile object from dictionary.")
 
         pd = profile_data
+
+        music = pd.get("music", {})
+        if music is not None:
+            profile_music = ProfileMusic(
+                artist=music.get("artist"),
+                artwork_url=music.get("artwork"),
+                duration=music.get("duration"),
+                song_title=music.get("songTitle"),
+                song_url=music.get("songUrl")
+            )
+        else:
+            profile_music = None
+
         return Profile(
             bio=pd.get('bio'),
             blocked_me=pd.get('blockedMe'),
@@ -60,6 +73,7 @@ class Profile:
             tags=pd.get("tags"),
             user_id=pd.get('id'),
             username=pd.get('username'),
+            profile_music=profile_music
         )
 
     def load_profile_picture(self, quality: int = 100, height: int | None = None) -> Image.Image:
