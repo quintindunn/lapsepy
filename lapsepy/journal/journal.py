@@ -4,6 +4,7 @@ Date: 10/22/23
 """
 
 import io
+import json
 
 from .common.exceptions import sync_journal_exception_router, SyncJournalException
 
@@ -18,8 +19,7 @@ from .factory.media_factory import ImageUploadURLGQL, CreateMediaGQL, SendInstan
 from lapsepy.journal.factory.profile_factory import SaveBioGQL, SaveDisplayNameGQL, SaveUsernameGQL, SaveEmojisGQL, \
     SaveDOBGQL
 
-from .structures.snap import Snap
-from .structures.profile import Profile
+from .structures import Snap, Profile, FriendsFeed
 
 import logging
 
@@ -190,8 +190,6 @@ class Journal:
         if not response.get("data", {}).get("sendKudos", {}).get("success"):
             raise SyncJournalException("Error sending kudos, could you already have reached your daily limit?")
 
-
-
     def get_friends_feed(self, count: int = 10) -> list[Profile]:
         """
         Gets your friend upload feed.
@@ -199,50 +197,14 @@ class Journal:
         :return: A list of profiles
         """
 
-        cursor = None
+        nodes = []
 
-        profiles = {}
-        entry_ids = []
+        # Get all the user's friends in the range.
+        query = FriendsFeedItemsGQL(last=count).to_dict()
+        response = self._sync_journal_call(query)
 
-        # If it started to repeat itself.
-        maxed = False
-        for _ in range(1, count, 10):
-            logger.debug(f"Getting friends feed starting from cursor: {cursor or 'INITIAL'}")
-            query = FriendsFeedItemsGQL(cursor).to_dict()
-            response = self._sync_journal_call(query)
+        nodes = [i['node'] for i in response['data']['friendsFeedItems']['edges']]
 
-            # Where to query the new data from
-            cursor = response['data']['friendsFeedItems']['pageInfo']['endCursor']
-            if cursor is None:
-                logger.debug("Reached max cursor depth.")
-                break
-
-            # Trim useless data from response
-            feed_data = [i['node'] for i in response['data']['friendsFeedItems']['edges']]
-
-            # Create Profile objects which hold the media data in Profile.media
-            for node in feed_data:
-                username = node.get('user').get('username')
-                if username in profiles.keys():
-                    profile = profiles[username]
-                else:
-                    profile = Profile.from_dict(node.get("user"))
-                    profiles[username] = profile
-
-                for entry in node['content']['entries']:
-                    eid = entry['id']
-                    if eid in entry_ids:
-                        logger.warn("Found duplicate of media, must've reached the end already...")
-                        maxed = True
-                        break
-                    entry_ids.append(eid)
-                    snap = Snap.from_dict(entry)
-                    profile.media.append(snap)
-
-            if maxed:
-                break
-
-        return list(profiles.values())
 
     def get_profile_by_id(self, user_id: str, album_limit: int = 6, friends_limit: int = 10) -> Profile:
         """

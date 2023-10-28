@@ -11,7 +11,7 @@ class FriendsFeedItemsGQL(BaseGQL):
     Gets items from friends feed.
     """
 
-    def __init__(self, start_cursor: str | None = None):
+    def __init__(self, last: int = 10):
         super().__init__(
             operation_name="FriendsFeedItemsGraphQLQuery",
             query="query FriendsFeedItemsGraphQLQuery($first: Int, $after: String, $last: Int, $before: String) { "
@@ -83,8 +83,8 @@ class FriendsFeedItemsGQL(BaseGQL):
                   "FriendsFeedItemTaggedMediaSharedV2 { __typename sharedMedia { __typename "
                   "...FriendsFeedItemMediaSharedDetails } }")
 
-        self.last = 10
-        self.before = start_cursor
+        self.last = last
+        self.before = None
 
         self.variables = {}
 
