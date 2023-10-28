@@ -216,6 +216,7 @@ class Journal:
             for entry in entries:
                 snap = Snap.from_dict(entry)
                 node_entry_objs.append(snap)
+                profile.media.append(snap)
 
             friend_nodes.append(FriendNode(profile=profile, iso_string=timestamp, entries=node_entry_objs))
 
