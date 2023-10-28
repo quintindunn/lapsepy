@@ -12,6 +12,9 @@ class FriendsFeed:
     def __init__(self, nodes: list["FriendNode"]):
         self.nodes: list[FriendNode] = nodes
 
+    def __iter__(self):
+        return iter(self.nodes)
+
 
 class FriendNode:
     def __init__(self, profile: Profile, iso_string: str, entries: list[Snap]):
