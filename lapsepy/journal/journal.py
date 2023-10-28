@@ -4,7 +4,6 @@ Date: 10/22/23
 """
 
 import io
-import json
 
 from .common.exceptions import sync_journal_exception_router, SyncJournalException
 
@@ -19,7 +18,7 @@ from .factory.media_factory import ImageUploadURLGQL, CreateMediaGQL, SendInstan
 from lapsepy.journal.factory.profile_factory import SaveBioGQL, SaveDisplayNameGQL, SaveUsernameGQL, SaveEmojisGQL, \
     SaveDOBGQL
 
-from .structures import Snap, Profile, FriendsFeed
+from .structures import Snap, Profile, FriendsFeed, FriendNode
 
 import logging
 
@@ -190,7 +189,7 @@ class Journal:
         if not response.get("data", {}).get("sendKudos", {}).get("success"):
             raise SyncJournalException("Error sending kudos, could you already have reached your daily limit?")
 
-    def get_friends_feed(self, count: int = 10) -> list[Profile]:
+    def get_friends_feed(self, count: int = 10) -> FriendsFeed:
         """
         Gets your friend upload feed.
         :param count: How many collection to grab.
@@ -203,8 +202,26 @@ class Journal:
         query = FriendsFeedItemsGQL(last=count).to_dict()
         response = self._sync_journal_call(query)
 
-        nodes = [i['node'] for i in response['data']['friendsFeedItems']['edges']]
+        nodes: list[dict] = [i['node'] for i in response['data']['friendsFeedItems']['edges']]
 
+        friend_nodes = []
+
+        for node in nodes:
+            profile_data = node.get("user")
+            profile = Profile.from_dict(profile_data)
+
+            timestamp = node.get("timestamp", {}).get("isoString")
+
+            entries = node.get("content").get("entries")
+
+            node_entry_objs = []
+            for entry in entries:
+                snap = Snap.from_dict(entry)
+                node_entry_objs.append(snap)
+
+            friend_nodes.append(FriendNode(profile=profile, iso_string=timestamp, entries=node_entry_objs))
+
+        return FriendsFeed(friend_nodes)
 
     def get_profile_by_id(self, user_id: str, album_limit: int = 6, friends_limit: int = 10) -> Profile:
         """

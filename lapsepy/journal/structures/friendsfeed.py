@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from .profile import Profile
+from .snap import Snap
 
 
 def _dt_from_iso(dt_str: str):
@@ -13,6 +14,7 @@ class FriendsFeed:
 
 
 class FriendNode:
-    def __init__(self, profile: Profile, iso_string: str):
+    def __init__(self, profile: Profile, iso_string: str, entries: list[Snap]):
         self.profile = profile
         self.timestamp: datetime = _dt_from_iso(iso_string)
+        self.entries: list[Snap] = entries
