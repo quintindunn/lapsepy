@@ -176,3 +176,12 @@ class Lapse:
         :return: None
         """
         return self.journal.modify_dob(dob=dob)
+
+    def add_reaction(self, msg_id: str, reaction: str):
+        """
+        Adds a reaction to a message
+        :param msg_id: ID of msg to send reaction to.
+        :param reaction: Reaction to send.
+        :return:
+        """
+        return self.journal.add_reaction(msg_id=msg_id, reaction=reaction)
