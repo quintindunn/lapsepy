@@ -275,7 +275,7 @@ class Journal:
         pd = response.get("data", {}).get("profile", {})
 
         def generate_profile_object(profile_data: dict) -> Profile:
-            music = profile_data.get("music", {})
+            music = profile_data.get("music")
             if music is not None:
                 profile_music = ProfileMusic(
                     artist=music.get("artist"),
