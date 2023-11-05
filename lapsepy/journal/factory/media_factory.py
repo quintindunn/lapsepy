@@ -186,3 +186,21 @@ class AddReactionGQL(BaseGQL):
             "id": self.msg_id,
             "reaction": self.reaction
         }
+
+
+class RemoveReactionGQL(BaseGQL):
+    def __init__(self, msg_id: str, reaction: str):
+        super().__init__("mutation RemoveReactionGraphQLMutation($input: RemoveMediaReactionInput!) "
+                         "{ removeMediaReaction(input: $input) { __typename success } }")
+        self.msg_id = msg_id
+        self.reaction = reaction
+
+        self.variables = {}
+
+        self._render_variables()
+
+    def _render_variables(self):
+        self.variables['input'] = {
+            "id": self.msg_id,
+            "reaction": self.reaction
+        }

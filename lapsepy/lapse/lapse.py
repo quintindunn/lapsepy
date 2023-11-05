@@ -185,3 +185,12 @@ class Lapse:
         :return:
         """
         return self.journal.add_reaction(msg_id=msg_id, reaction=reaction)
+
+    def remove_reaction(self, msg_id: str, reaction: str):
+        """
+        removes a reaction from a message
+        :param msg_id: ID of msg to remove reaction from.
+        :param reaction: Reaction to remove.
+        :return:
+        """
+        return self.journal.remove_reaction(msg_id=msg_id, reaction=reaction)

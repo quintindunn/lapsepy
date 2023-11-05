@@ -16,7 +16,7 @@ import requests
 
 from .factory.friends_factory import FriendsFeedItemsGQL, ProfileDetailsGQL, SendKudosGQL
 from .factory.media_factory import ImageUploadURLGQL, CreateMediaGQL, SendInstantsGQL, StatusUpdateGQL, \
-    RemoveFriendsFeedItemGQL, AddReactionGQL
+    RemoveFriendsFeedItemGQL, AddReactionGQL, RemoveReactionGQL
 from lapsepy.journal.factory.profile_factory import SaveBioGQL, SaveDisplayNameGQL, SaveUsernameGQL, SaveEmojisGQL, \
     SaveDOBGQL
 
@@ -395,3 +395,16 @@ class Journal:
 
         if not response.get('data', {}).get("addMediaReaction", {}).get("success"):
             raise SyncJournalException("Error adding reaction.")
+
+    def remove_reaction(self, msg_id: str, reaction: str):
+        """
+        removes a reaction from a message
+        :param msg_id: ID of msg to remove reaction from.
+        :param reaction: Reaction to remove.
+        :return:
+        """
+        query = RemoveReactionGQL(msg_id=msg_id, reaction=reaction).to_dict()
+        response = self._sync_journal_call(query)
+
+        if not response.get('data', {}).get("removeMediaReaction", {}).get("success"):
+            raise SyncJournalException("Error removing reaction.")
