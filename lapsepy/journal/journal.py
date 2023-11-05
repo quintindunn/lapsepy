@@ -4,6 +4,7 @@ Date: 10/22/23
 """
 
 import io
+import uuid
 
 from .common.exceptions import sync_journal_exception_router, SyncJournalException
 
@@ -14,7 +15,7 @@ from PIL import Image
 import requests
 
 from .factory.friends_factory import FriendsFeedItemsGQL, ProfileDetailsGQL, SendKudosGQL
-from .factory.media_factory import ImageUploadURLGQL, CreateMediaGQL, SendInstantsGQL
+from .factory.media_factory import ImageUploadURLGQL, CreateMediaGQL, SendInstantsGQL, StatusUpdateGQL
 from lapsepy.journal.factory.profile_factory import SaveBioGQL, SaveDisplayNameGQL, SaveUsernameGQL, SaveEmojisGQL, \
     SaveDOBGQL
 
@@ -176,6 +177,21 @@ class Journal:
         query = SendInstantsGQL(user_id=user_id, file_uuid=file_uuid, im_id=im_id, caption=caption,
                                 time_limit=time_limit).to_dict()
         self._sync_journal_call(query)
+
+    def create_status_update(self, text: str, msg_id: str | None):
+        """
+        Creates a status update on your Journal
+        :param text: Msg of the text to send
+        :param msg_id: Leave None if you don't know what you're doing. FORMAT: STATUS_UPDATE:<(str(uuid.uuid4))>
+        :return:
+        """
+        if msg_id is None:
+            msg_id = f"STATUS_UPDATE:{uuid.uuid4()}"
+        query = StatusUpdateGQL(text=text, msg_id=msg_id).to_dict()
+        response = self._sync_journal_call(query)
+
+        if not response.get("data", {}).get("createStatusUpdate", {}).get("success"):
+            raise SyncJournalException("Error create new status.")
 
     def send_kudos(self, user_id: str):
         """
