@@ -190,7 +190,8 @@ class AddReactionGQL(BaseGQL):
 
 class RemoveReactionGQL(BaseGQL):
     def __init__(self, msg_id: str, reaction: str):
-        super().__init__("mutation RemoveReactionGraphQLMutation($input: RemoveMediaReactionInput!) "
+        super().__init__("RemoveReactionGraphQLMutation",
+                         "mutation RemoveReactionGraphQLMutation($input: RemoveMediaReactionInput!) "
                          "{ removeMediaReaction(input: $input) { __typename success } }")
         self.msg_id = msg_id
         self.reaction = reaction

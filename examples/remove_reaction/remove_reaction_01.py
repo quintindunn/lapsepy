@@ -7,4 +7,4 @@ if __name__ == '__main__':
     msg_id = input("MSG ID: ")
     reaction = input("Reaction: ")
 
-    lapse.add_reaction(msg_id=msg_id, reaction=reaction)
+    lapse.remove_reaction(msg_id=msg_id, reaction=reaction)
