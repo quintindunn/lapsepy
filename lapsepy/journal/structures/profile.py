@@ -95,6 +95,8 @@ class Profile:
         logger.debug(f"Getting profile image from \"{url}\"")
 
         request = requests.get(url)
+        request.raise_for_status()
+        
         bytes_io = io.BytesIO(request.content)
         image = Image.open(bytes_io)
 
