@@ -146,3 +146,24 @@ class StatusUpdateGQL(BaseGQL):
             },
             "id": self.msg_id
         }
+
+
+class RemoveFriendsFeedItemGQL(BaseGQL):
+    def __init__(self, msg_id: str, iso_string: str):
+        super().__init__("RemoveFriendsFeedItem",
+                         "mutation RemoveFriendsFeedItem($input: RemoveFriendsFeedItemInput!) "
+                         "{ removeFriendsFeedItem(input: $input) { __typename success } }")
+        self.msg_id = msg_id
+        self.iso_string = iso_string
+
+        self.variables = {}
+
+        self._render_variables()
+
+    def _render_variables(self):
+        self.variables['input'] = {
+            "id": self.msg_id,
+            "removedAt": {
+                "isoString": self.iso_string
+            }
+        }
