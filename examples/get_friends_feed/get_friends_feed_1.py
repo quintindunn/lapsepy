@@ -1,7 +1,5 @@
 import os
 
-import requests.exceptions
-
 from lapsepy.lapse import Lapse
 
 if __name__ == '__main__':
@@ -17,11 +15,8 @@ if __name__ == '__main__':
         profile = friend_node.profile
 
         # Get profile picture
-        try:
-            profile.load_profile_picture(quality=100, height=None)
-            profile.profile_picture.save(f"./out/{profile.username}.jpg")
-        except requests.exceptions.HTTPError:
-            print(f"Failed getting profile picture for {profile.username}")
+        profile.load_profile_picture(quality=100, height=None)
+        profile.profile_picture.save(f"./out/{profile.username}.jpg")
 
         # Get all images from collections
         for entry in friend_node.entries:
