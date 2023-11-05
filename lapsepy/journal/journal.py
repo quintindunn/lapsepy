@@ -16,7 +16,7 @@ import requests
 
 from .factory.friends_factory import FriendsFeedItemsGQL, ProfileDetailsGQL, SendKudosGQL
 from .factory.media_factory import ImageUploadURLGQL, CreateMediaGQL, SendInstantsGQL, StatusUpdateGQL, \
-    RemoveFriendsFeedItemGQL
+    RemoveFriendsFeedItemGQL, AddReactionGQL
 from lapsepy.journal.factory.profile_factory import SaveBioGQL, SaveDisplayNameGQL, SaveUsernameGQL, SaveEmojisGQL, \
     SaveDOBGQL
 
@@ -208,6 +208,8 @@ class Journal:
         query = RemoveFriendsFeedItemGQL(msg_id=msg_id, iso_string=removed_at).to_dict()
         response = self._sync_journal_call(query)
 
+        print(response)
+
         if not response.get("data", {}).get("removeFriendsFeedItem", {}).get("success"):
             raise SyncJournalException("Failed removing status.")
 
@@ -380,3 +382,16 @@ class Journal:
 
         if not response.get('data', {}).get("saveDateOfBirth", {}).get("success"):
             raise SyncJournalException("Error saving date of birth.")
+
+    def add_reaction(self, msg_id: str, reaction: str):
+        """
+        Adds a reaction to a message
+        :param msg_id: ID of msg to send reaction to.
+        :param reaction: Reaction to send.
+        :return:
+        """
+        query = AddReactionGQL(msg_id=msg_id, reaction=reaction).to_dict()
+        response = self._sync_journal_call(query)
+
+        if not response.get('data', {}).get("addMediaReaction", {}).get("success"):
+            raise SyncJournalException("Error adding reaction.")

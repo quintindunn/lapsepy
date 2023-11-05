@@ -167,3 +167,22 @@ class RemoveFriendsFeedItemGQL(BaseGQL):
                 "isoString": self.iso_string
             }
         }
+
+
+class AddReactionGQL(BaseGQL):
+    def __init__(self, msg_id: str, reaction: str):
+        super().__init__("AddReactionGraphQLMutation",
+                         "mutation AddReactionGraphQLMutation($input: AddMediaReactionInput!) "
+                         "{ addMediaReaction(input: $input) { __typename success } }")
+        self.msg_id = msg_id
+        self.reaction = reaction
+
+        self.variables = {}
+
+        self._render_variables()
+
+    def _render_variables(self):
+        self.variables['input'] = {
+            "id": self.msg_id,
+            "reaction": self.reaction
+        }
