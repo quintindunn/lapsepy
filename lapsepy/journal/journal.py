@@ -208,8 +208,6 @@ class Journal:
         query = RemoveFriendsFeedItemGQL(msg_id=msg_id, iso_string=removed_at).to_dict()
         response = self._sync_journal_call(query)
 
-        print(response)
-
         if not response.get("data", {}).get("removeFriendsFeedItem", {}).get("success"):
             raise SyncJournalException("Failed removing status.")
 
