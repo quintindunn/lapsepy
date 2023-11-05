@@ -86,6 +86,24 @@ class Lapse:
         return self.journal.upload_instant(im=im, user_id=user, file_uuid=file_uuid, im_id=im_id, caption=caption,
                                            time_limit=time_limit)
 
+    def create_status_update(self, text: str, msg_id: str | None = None):
+        """
+        Creates a status update on your Journal
+        :param text: Msg of the text to send
+        :param msg_id: Leave None if you don't know what you're doing. FORMAT: STATUS_UPDATE:<(str(uuid.uuid4))>
+        :return:
+        """
+        return self.journal.create_status_update(text=text, msg_id=msg_id)
+
+    def remove_status_update(self, msg_id: str, removed_at: datetime | None = None):
+        """
+        Removes a status update
+        :param msg_id: ID of the status update
+        :param removed_at: datetime object of when it was removed
+        :return:
+        """
+        return self.journal.remove_status_update(msg_id=msg_id, removed_at=removed_at)
+
     def send_kudos(self, user: str | Profile):
         """
         Sends kudos (vibes) to a user.

@@ -52,7 +52,7 @@ class Profile:
 
         pd = profile_data
 
-        music = pd.get("music", {})
+        music = pd.get("music")
         if music is not None:
             profile_music = ProfileMusic(
                 artist=music.get("artist"),

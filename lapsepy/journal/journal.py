@@ -4,6 +4,7 @@ Date: 10/22/23
 """
 
 import io
+import uuid
 
 from .common.exceptions import sync_journal_exception_router, SyncJournalException
 
@@ -14,7 +15,8 @@ from PIL import Image
 import requests
 
 from .factory.friends_factory import FriendsFeedItemsGQL, ProfileDetailsGQL, SendKudosGQL
-from .factory.media_factory import ImageUploadURLGQL, CreateMediaGQL, SendInstantsGQL
+from .factory.media_factory import ImageUploadURLGQL, CreateMediaGQL, SendInstantsGQL, StatusUpdateGQL, \
+    RemoveFriendsFeedItemGQL
 from lapsepy.journal.factory.profile_factory import SaveBioGQL, SaveDisplayNameGQL, SaveUsernameGQL, SaveEmojisGQL, \
     SaveDOBGQL
 
@@ -177,6 +179,38 @@ class Journal:
                                 time_limit=time_limit).to_dict()
         self._sync_journal_call(query)
 
+    def create_status_update(self, text: str, msg_id: str | None):
+        """
+        Creates a status update on your Journal
+        :param text: Msg of the text to send
+        :param msg_id: Leave None if you don't know what you're doing. FORMAT: STATUS_UPDATE:<(str(uuid.uuid4))>
+        :return:
+        """
+        if msg_id is None:
+            msg_id = f"STATUS_UPDATE:{uuid.uuid4()}"
+        query = StatusUpdateGQL(text=text, msg_id=msg_id).to_dict()
+        response = self._sync_journal_call(query)
+
+        if not response.get("data", {}).get("createStatusUpdate", {}).get("success"):
+            raise SyncJournalException("Error create new status.")
+
+    def remove_status_update(self, msg_id: str, removed_at: datetime | None):
+        """
+        Removes a status update
+        :param msg_id: ID of the status update
+        :param removed_at: datetime object of when it was removed
+        :return:
+        """
+        if removed_at is None:
+            removed_at = datetime.now()
+        removed_at = format_iso_time(removed_at)
+
+        query = RemoveFriendsFeedItemGQL(msg_id=msg_id, iso_string=removed_at).to_dict()
+        response = self._sync_journal_call(query)
+
+        if not response.get("data", {}).get("removeFriendsFeedItem", {}).get("success"):
+            raise SyncJournalException("Failed removing status.")
+
     def send_kudos(self, user_id: str):
         """
         Sends kudos (vibes) to a given user
@@ -241,7 +275,7 @@ class Journal:
         pd = response.get("data", {}).get("profile", {})
 
         def generate_profile_object(profile_data: dict) -> Profile:
-            music = profile_data.get("music", {})
+            music = profile_data.get("music")
             if music is not None:
                 profile_music = ProfileMusic(
                     artist=music.get("artist"),
