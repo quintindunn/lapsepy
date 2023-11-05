@@ -95,6 +95,15 @@ class Lapse:
         """
         return self.journal.create_status_update(text=text, msg_id=msg_id)
 
+    def remove_status_update(self, msg_id: str, removed_at: datetime | None = None):
+        """
+        Removes a status update
+        :param msg_id: ID of the status update
+        :param removed_at: datetime object of when it was removed
+        :return:
+        """
+        return self.journal.remove_status_update(msg_id=msg_id, removed_at=removed_at)
+
     def send_kudos(self, user: str | Profile):
         """
         Sends kudos (vibes) to a user.
