@@ -15,7 +15,8 @@ from PIL import Image
 import requests
 
 from .factory.friends_factory import FriendsFeedItemsGQL, ProfileDetailsGQL, SendKudosGQL
-from .factory.media_factory import ImageUploadURLGQL, CreateMediaGQL, SendInstantsGQL, StatusUpdateGQL
+from .factory.media_factory import ImageUploadURLGQL, CreateMediaGQL, SendInstantsGQL, StatusUpdateGQL, \
+    RemoveFriendsFeedItemGQL
 from lapsepy.journal.factory.profile_factory import SaveBioGQL, SaveDisplayNameGQL, SaveUsernameGQL, SaveEmojisGQL, \
     SaveDOBGQL
 
@@ -192,6 +193,23 @@ class Journal:
 
         if not response.get("data", {}).get("createStatusUpdate", {}).get("success"):
             raise SyncJournalException("Error create new status.")
+
+    def remove_status_update(self, msg_id: str, removed_at: datetime | None):
+        """
+        Removes a status update
+        :param msg_id: ID of the status update
+        :param removed_at: datetime object of when it was removed
+        :return:
+        """
+        if removed_at is None:
+            removed_at = datetime.now()
+        removed_at = format_iso_time(removed_at)
+
+        query = RemoveFriendsFeedItemGQL(msg_id=msg_id, iso_string=removed_at).to_dict()
+        response = self._sync_journal_call(query)
+
+        if not response.get("data", {}).get("removeFriendsFeedItem", {}).get("success"):
+            raise SyncJournalException("Failed removing status.")
 
     def send_kudos(self, user_id: str):
         """
