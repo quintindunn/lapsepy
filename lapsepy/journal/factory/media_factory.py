@@ -135,6 +135,10 @@ class StatusUpdateGQL(BaseGQL):
         self.text = text
         self.msg_id = msg_id
 
+        self.variables = {}
+
+        self._render_variables()
+
     def _render_variables(self):
         self.variables['input'] = {
             "body": {
