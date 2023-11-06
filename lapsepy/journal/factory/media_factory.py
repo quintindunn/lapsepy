@@ -205,3 +205,24 @@ class RemoveReactionGQL(BaseGQL):
             "id": self.msg_id,
             "reaction": self.reaction
         }
+
+
+class SendCommentGQL(BaseGQL):
+    def __init__(self, comment_id: str, msg_id: str, text: str):
+        super().__init__("SendCommentGraphQLMutation",
+                         "mutation SendCommentGraphQLMutation($input: SendMediaCommentInput!) "
+                         "{ sendMediaComment(input: $input) { __typename success } }")
+        self.comment_id = comment_id
+        self.msg_id = msg_id
+        self.text = text
+
+        self.variables = {}
+
+        self._render_variables()
+
+    def _render_variables(self):
+        self.variables['input'] = {
+            "id": self.comment_id,
+            "mediaId": self.msg_id,
+            "text": self.text
+        }
