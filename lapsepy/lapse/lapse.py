@@ -194,3 +194,22 @@ class Lapse:
         :return:
         """
         return self.journal.remove_reaction(msg_id=msg_id, reaction=reaction)
+
+    def send_comment(self, msg_id: str, text: str, comment_id: str | None = None):
+        """
+        Adds a comment to a post
+        :param comment_id: id of the comment, leave as None unless you know what you're doing
+        :param msg_id: id of the message
+        :param text: text to send in the comment
+        :return:
+        """
+        return self.journal.create_comment(msg_id=msg_id, text=text, comment_id=comment_id)
+
+    def delete_comment(self, msg_id: str, comment_id: str):
+        """
+        Deletes a comment from a lapsepy post
+        :param msg_id: ID of the post
+        :param comment_id: ID of the comment
+        :return:
+        """
+        return self.journal.delete_comment(msg_id=msg_id, comment_id=comment_id)

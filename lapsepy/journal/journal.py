@@ -16,7 +16,7 @@ import requests
 
 from .factory.friends_factory import FriendsFeedItemsGQL, ProfileDetailsGQL, SendKudosGQL
 from .factory.media_factory import ImageUploadURLGQL, CreateMediaGQL, SendInstantsGQL, StatusUpdateGQL, \
-    RemoveFriendsFeedItemGQL, AddReactionGQL, RemoveReactionGQL
+    RemoveFriendsFeedItemGQL, AddReactionGQL, RemoveReactionGQL, SendCommentGQL, DeleteCommentGQL
 from lapsepy.journal.factory.profile_factory import SaveBioGQL, SaveDisplayNameGQL, SaveUsernameGQL, SaveEmojisGQL, \
     SaveDOBGQL
 
@@ -406,3 +406,32 @@ class Journal:
 
         if not response.get('data', {}).get("removeMediaReaction", {}).get("success"):
             raise SyncJournalException("Error removing reaction.")
+
+    def create_comment(self, msg_id: str, text: str, comment_id: str | None = None):
+        """
+        Adds a comment to a post
+        :param comment_id: id of the comment, leave as None unless you know what you're doing
+        :param msg_id: id of the message
+        :param text: text to send in the comment
+        :return:
+        """
+        if comment_id is None:
+            comment_id = "01HEH" + str(uuid4()).upper().replace("-", "")[:20]
+        query = SendCommentGQL(comment_id=comment_id, msg_id=msg_id, text=text).to_dict()
+        response = self._sync_journal_call(query)
+
+        if not response.get('data', {}).get("sendMediaComment", {}).get("success"):
+            raise SyncJournalException("Error sending comment.")
+
+    def delete_comment(self, msg_id: str, comment_id: str):
+        """
+        Deletes a comment from a lapsepy post
+        :param msg_id: ID of the post
+        :param comment_id: ID of the comment
+        :return:
+        """
+        query = DeleteCommentGQL(msg_id=msg_id, comment_id=comment_id).to_dict()
+        response = self._sync_journal_call(query)
+
+        if not response.get('data', {}).get("deleteMediaComment", {}).get("success"):
+            raise SyncJournalException("Error deleting comment.")
