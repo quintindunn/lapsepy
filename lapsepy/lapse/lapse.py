@@ -176,3 +176,40 @@ class Lapse:
         :return: None
         """
         return self.journal.modify_dob(dob=dob)
+
+    def add_reaction(self, msg_id: str, reaction: str):
+        """
+        Adds a reaction to a message
+        :param msg_id: ID of msg to send reaction to.
+        :param reaction: Reaction to send.
+        :return:
+        """
+        return self.journal.add_reaction(msg_id=msg_id, reaction=reaction)
+
+    def remove_reaction(self, msg_id: str, reaction: str):
+        """
+        removes a reaction from a message
+        :param msg_id: ID of msg to remove reaction from.
+        :param reaction: Reaction to remove.
+        :return:
+        """
+        return self.journal.remove_reaction(msg_id=msg_id, reaction=reaction)
+
+    def send_comment(self, msg_id: str, text: str, comment_id: str | None = None):
+        """
+        Adds a comment to a post
+        :param comment_id: id of the comment, leave as None unless you know what you're doing
+        :param msg_id: id of the message
+        :param text: text to send in the comment
+        :return:
+        """
+        return self.journal.create_comment(msg_id=msg_id, text=text, comment_id=comment_id)
+
+    def delete_comment(self, msg_id: str, comment_id: str):
+        """
+        Deletes a comment from a lapsepy post
+        :param msg_id: ID of the post
+        :param comment_id: ID of the comment
+        :return:
+        """
+        return self.journal.delete_comment(msg_id=msg_id, comment_id=comment_id)

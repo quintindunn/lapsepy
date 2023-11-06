@@ -167,3 +167,81 @@ class RemoveFriendsFeedItemGQL(BaseGQL):
                 "isoString": self.iso_string
             }
         }
+
+
+class AddReactionGQL(BaseGQL):
+    def __init__(self, msg_id: str, reaction: str):
+        super().__init__("AddReactionGraphQLMutation",
+                         "mutation AddReactionGraphQLMutation($input: AddMediaReactionInput!) "
+                         "{ addMediaReaction(input: $input) { __typename success } }")
+        self.msg_id = msg_id
+        self.reaction = reaction
+
+        self.variables = {}
+
+        self._render_variables()
+
+    def _render_variables(self):
+        self.variables['input'] = {
+            "id": self.msg_id,
+            "reaction": self.reaction
+        }
+
+
+class RemoveReactionGQL(BaseGQL):
+    def __init__(self, msg_id: str, reaction: str):
+        super().__init__("RemoveReactionGraphQLMutation",
+                         "mutation RemoveReactionGraphQLMutation($input: RemoveMediaReactionInput!) "
+                         "{ removeMediaReaction(input: $input) { __typename success } }")
+        self.msg_id = msg_id
+        self.reaction = reaction
+
+        self.variables = {}
+
+        self._render_variables()
+
+    def _render_variables(self):
+        self.variables['input'] = {
+            "id": self.msg_id,
+            "reaction": self.reaction
+        }
+
+
+class SendCommentGQL(BaseGQL):
+    def __init__(self, comment_id: str, msg_id: str, text: str):
+        super().__init__("SendCommentGraphQLMutation",
+                         "mutation SendCommentGraphQLMutation($input: SendMediaCommentInput!) "
+                         "{ sendMediaComment(input: $input) { __typename success } }")
+        self.comment_id = comment_id
+        self.msg_id = msg_id
+        self.text = text
+
+        self.variables = {}
+
+        self._render_variables()
+
+    def _render_variables(self):
+        self.variables['input'] = {
+            "id": self.comment_id,
+            "mediaId": self.msg_id,
+            "text": self.text
+        }
+
+
+class DeleteCommentGQL(BaseGQL):
+    def __init__(self, comment_id: str, msg_id: str):
+        super().__init__("DeleteCommentGraphQLMutation",
+                         "mutation DeleteCommentGraphQLMutation($input: DeleteMediaCommentInput!) "
+                         "{ deleteMediaComment(input: $input) { __typename success } }")
+        self.comment_id = comment_id
+        self.msg_id = msg_id
+
+        self.variables = {}
+
+        self._render_variables()
+
+    def _render_variables(self):
+        self.variables['input'] = {
+            "id": self.comment_id,
+            "mediaId": self.msg_id,
+        }
