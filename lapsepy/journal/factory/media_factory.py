@@ -2,12 +2,16 @@
 Author: Quintin Dunn
 Date: 10/22/23
 """
+from typing import TYPE_CHECKING
 
 from lapsepy.journal.factory.factory import BaseGQL
 
 from datetime import datetime, timedelta
 
 import logging
+
+if TYPE_CHECKING:
+    from lapsepy.journal.structures import ReviewMediaPartition
 
 logger = logging.getLogger("lapsepy.journal.factory.media_factory.py")
 
@@ -16,6 +20,7 @@ class CreateMediaGQL(BaseGQL):
     """
     Create the GraphQL Query for registering an image in the Lapse darkroom.
     """
+
     def __init__(self, file_uuid: str, taken_at: str, develop_in: int, color_temperature: float,
                  exposure_value: float, flash: bool, timezone: str):
         super().__init__(
@@ -56,6 +61,28 @@ class CreateMediaGQL(BaseGQL):
                 "isoString": self.taken_at
             },
             "timezone": self.timezone
+        }
+
+
+class ReviewMediaGQL(BaseGQL):
+    def __init__(self, archived: list[ReviewMediaPartition], deleted: list[ReviewMediaPartition],
+                 shared: list[ReviewMediaPartition]):
+        super().__init__("ReviewMediaGraphQLMutation",
+                         "mutation ReviewMediaGraphQLMutation($input: ReviewMediaInput!) "
+                         "{ reviewMedia(input: $input) { __typename success } }")
+        self.archived = [archive.to_dict() for archive in archived]
+        self.deleted = [deleted.to_dict() for deleted in deleted]
+        self.shared = [shared.to_dict() for shared in shared]
+
+        self.variables = {}
+
+        self._render_variables()
+
+    def _render_variables(self):
+        self.variables['input'] = {
+            "archivedMedia": self.archived,
+            "deletedMedia": self.deleted,
+            "sharedMedia": self.shared
         }
 
 
@@ -103,6 +130,7 @@ class ImageUploadURLGQL(BaseGQL):
     """
     Create the GraphQL Query for requesting an upload URL for the AWS server.
     """
+
     def __init__(self, file_uuid, is_instant: bool = False):
         """
         :param file_uuid: UUID of the file uploaded.

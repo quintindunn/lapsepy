@@ -17,6 +17,7 @@ from .core import Media
 import typing
 
 from lapsepy.journal.common.exceptions import SyncJournalException
+from ..common.utils import format_iso_time
 
 if typing.TYPE_CHECKING:
     from lapsepy.lapse import Lapse
@@ -155,3 +156,19 @@ class DarkRoomMedia(Media):
     def developed(self):
         self._developed = datetime.utcnow() >= self.develops_at
         return self._developed
+
+
+class ReviewMediaPartition:
+    def __init__(self, media_id: str, iso_string: str | None = None, tags: list = None):
+        self.media_id = media_id
+        self.iso_string = iso_string or format_iso_time(datetime.utcnow())
+        self.tags = tags
+
+    def to_dict(self):
+        return {
+            "mediaId": self.media_id,
+            "reviewedAt": {
+                "isoString": self.iso_string
+            },
+            "tags": self.tags
+        }
