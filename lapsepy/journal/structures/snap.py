@@ -37,6 +37,13 @@ class Snap(Media):
         self.filtered_id: str | None = filtered_id
         self.original_id: str | None = original_id
 
+        if self.filtered_id:
+            self.id = filtered_id.split("/filtered_0")[0]
+        elif self.original_id:
+            self.id = original_id.split("/filtered_0")[0]
+        else:
+            raise SyncJournalException("Could not get ID of snap.")
+
         self.filtered: Image.Image | None = None
         self.original: Image.Image | None = None
 
@@ -60,14 +67,10 @@ class Snap(Media):
         )
 
     def react(self, ctx: "Lapse", reaction: str):
-        if self.filtered_id:
-            msg_id = self.filtered_id.split("/filtered_0")[0]
-        elif self.original_id:
-            msg_id = self.original_id.split("/filtered_0")[0]
-        else:
-            raise SyncJournalException("Could not get ID of snap.")
+        ctx.add_reaction(msg_id=self.id, reaction=reaction)
 
-        ctx.add_reaction(msg_id=msg_id, reaction=reaction)
+    def comment(self, ctx: "Lapse", text: str, comment_id: str | None = None):
+        ctx.send_comment(msg_id=self.id, text=text, comment_id=comment_id)
 
     def load_filtered(self, quality: int, fl_keep_iptc: bool) -> Image.Image:
         """
