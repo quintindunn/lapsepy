@@ -1,5 +1,4 @@
 import os
-from PIL import Image
 from lapsepy.lapse import Lapse
 
 if __name__ == '__main__':
