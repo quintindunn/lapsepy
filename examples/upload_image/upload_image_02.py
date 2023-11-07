@@ -9,3 +9,7 @@ if __name__ == '__main__':
 
     # Develop in 15 seconds
     darkroom_snap = lapse.upload_photo(im=upload_im, develop_in=5)
+
+    review = darkroom_snap.reviewed
+
+    print(review)

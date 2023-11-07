@@ -65,8 +65,8 @@ class CreateMediaGQL(BaseGQL):
 
 
 class ReviewMediaGQL(BaseGQL):
-    def __init__(self, archived: list[ReviewMediaPartition], deleted: list[ReviewMediaPartition],
-                 shared: list[ReviewMediaPartition]):
+    def __init__(self, archived: list["ReviewMediaPartition"], deleted: list["ReviewMediaPartition"],
+                 shared: list["ReviewMediaPartition"]):
         super().__init__("ReviewMediaGraphQLMutation",
                          "mutation ReviewMediaGraphQLMutation($input: ReviewMediaInput!) "
                          "{ reviewMedia(input: $input) { __typename success } }")
