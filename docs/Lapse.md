@@ -36,7 +36,7 @@ Updates your Lapse profile's emojis displayed around your profile picture to the
 ```python3
     Lapse.update_emojis(emojis: list[str])
 ```
-* `emojis: list[str]` - List of emojis to set as your profile emojis. This is still restricted to 5 characters at most, however you can bypass it forcing you to only use emojis, text does in fact work.
+* `emojis: list[str]` - List of emojis to set as your profile emojis. This is still restricted to 5 strings at most, however you can bypass it forcing you to only use emojis, multi-character text does in fact work.
 
 
 #### Lapse.update_username
