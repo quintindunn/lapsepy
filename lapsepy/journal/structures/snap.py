@@ -166,6 +166,18 @@ class DarkRoomMedia(Media):
             iso_string = datetime.utcnow()
         return ReviewMediaPartition(media_id=self.file_uuid, iso_string=iso_string)
 
+    def archive(self, ctx: "Lapse", iso_string: str | None | datetime = None):
+        partition = self.review(iso_string=iso_string)
+        return ctx.review_snaps(archived=[partition])
+
+    def delete(self, ctx: "Lapse", iso_string: str | None | datetime = None):
+        partition = self.review(iso_string=iso_string)
+        return ctx.review_snaps(deleted=[partition])
+
+    def share(self, ctx: "Lapse", iso_string: str | None | datetime = None):
+        partition = self.review(iso_string=iso_string)
+        return ctx.review_snaps(shared=[partition])
+
 
 class ReviewMediaPartition:
     def __init__(self, media_id: str, iso_string: str | None | datetime = None, tags: list = None):
