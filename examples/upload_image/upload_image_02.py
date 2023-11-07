@@ -1,4 +1,5 @@
 import os
+import time
 
 from PIL import Image
 from lapsepy.lapse import Lapse
@@ -12,4 +13,8 @@ if __name__ == '__main__':
 
     review = darkroom_snap.reviewed
 
-    print(review)
+    while darkroom_snap.developed is False:
+        time.sleep(0.5)
+
+    lapse.review_snaps(archived=[review])
+

@@ -16,11 +16,11 @@ import requests
 
 from .factory.friends_factory import FriendsFeedItemsGQL, ProfileDetailsGQL, SendKudosGQL
 from .factory.media_factory import ImageUploadURLGQL, CreateMediaGQL, SendInstantsGQL, StatusUpdateGQL, \
-    RemoveFriendsFeedItemGQL, AddReactionGQL, RemoveReactionGQL, SendCommentGQL, DeleteCommentGQL
+    RemoveFriendsFeedItemGQL, AddReactionGQL, RemoveReactionGQL, SendCommentGQL, DeleteCommentGQL, ReviewMediaGQL
 from lapsepy.journal.factory.profile_factory import SaveBioGQL, SaveDisplayNameGQL, SaveUsernameGQL, SaveEmojisGQL, \
     SaveDOBGQL
 
-from .structures import Snap, Profile, ProfileMusic, FriendsFeed, FriendNode, DarkRoomMedia
+from .structures import Snap, Profile, ProfileMusic, FriendsFeed, FriendNode, DarkRoomMedia, ReviewMediaPartition
 
 import logging
 
@@ -173,6 +173,29 @@ class Journal:
         logger.debug(f"Finished uploading image {file_uuid}.")
 
         return darkroom_snap
+
+    def review_snaps(self, archived: list["ReviewMediaPartition"] | None = None,
+                     deleted: list["ReviewMediaPartition"] | None = None,
+                     shared: list["ReviewMediaPartition"] | None = None):
+        """
+        Reviews snaps from the darkroom
+        :param archived: List of ReviewMediaPartitions for Snaps to archive.
+        :param deleted: List of ReviewMediaPartitions for Snaps to delete.
+        :param shared: List of ReviewMediaPartitions for Snaps to share.
+        :return:
+        """
+        if archived is None:
+            archived = []
+        if deleted is None:
+            deleted = []
+        if shared is None:
+            shared = []
+
+        query = ReviewMediaGQL(archived=archived, deleted=deleted, shared=shared).to_dict()
+        response = self._sync_journal_call(query=query)
+
+        if not response.get("data", {}).get("reviewMedia", {}).get("success"):
+            raise SyncJournalException("Error reviewing media.")
 
     def upload_instant(self, im: Image.Image, user_id: str, file_uuid: str | None = None, im_id: str | None = None,
                        caption: str | None = None, time_limit: int = 10):

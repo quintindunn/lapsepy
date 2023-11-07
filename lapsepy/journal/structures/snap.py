@@ -170,7 +170,12 @@ class DarkRoomMedia(Media):
 class ReviewMediaPartition:
     def __init__(self, media_id: str, iso_string: str | None | datetime = None, tags: list = None):
         self.media_id = media_id
-        self.iso_string = iso_string or format_iso_time(datetime.utcnow())
+        iso_string = iso_string or datetime.utcnow()
+
+        if not isinstance(iso_string, str):
+            self.iso_string = format_iso_time(iso_string)
+        else:
+            self.iso_string = iso_string
         self.tags = tags
 
     def to_dict(self):
