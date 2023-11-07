@@ -27,9 +27,9 @@ Updates your Lapse profile's display name to the text specified.
 #### Lapse.update_dob
 Updates your Lapse date of birth to the date specified.
 ```python3
-    Lapse.update_dob(dob: str)
+    Lapse.update_dob(dob: str | datetime)
 ```
-* `dob: str` - Date of birth you would like your profile to be set to, the format of the parameter should be `yyyy-mm-dd`, with everything zero padded when needed to conform with that format. This can bypass rules on Lapse, allowing you to make your age go into the negatives, or make you over 2000 years old.
+* `dob: str | datetime` - Date of birth you would like your profile to be set to, the str format of the parameter should be `yyyy-mm-dd`, with everything zero padded when needed to conform with that format. The datetime version should be a datetime object with a year no larger than 9999, This can bypass rules on Lapse, allowing you to make your age go into the negatives, or make you over 2000 years old.
 
 #### Lapse.update_emojis
 Updates your Lapse profile's emojis displayed around your profile picture to the emojis specified.
