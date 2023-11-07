@@ -86,6 +86,14 @@ class ReviewMediaGQL(BaseGQL):
         }
 
 
+class DarkroomGQL(BaseGQL):
+    def __init__(self):
+        super().__init__("DarkroomGraphQLQuery", "query DarkroomGraphQLQuery { darkroom { __typename "
+                                                 "...DarkroomMediaDetails } }\nfragment DarkroomMediaDetails on "
+                                                 "DarkroomMedia { __typename mediaId takenAt { __typename isoString } "
+                                                 "developsAt { __typename isoString } }")
+
+
 class SendInstantsGQL(BaseGQL):
     def __init__(self, user_id: str, file_uuid: str, im_id: str, caption: str, time_limit: int):
         super().__init__(

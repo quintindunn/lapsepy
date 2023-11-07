@@ -16,8 +16,11 @@ import requests
 
 from .common.utils import format_iso_time
 from .factory.friends_factory import FriendsFeedItemsGQL, ProfileDetailsGQL, SendKudosGQL
+
 from .factory.media_factory import ImageUploadURLGQL, CreateMediaGQL, SendInstantsGQL, StatusUpdateGQL, \
-    RemoveFriendsFeedItemGQL, AddReactionGQL, RemoveReactionGQL, SendCommentGQL, DeleteCommentGQL, ReviewMediaGQL
+    RemoveFriendsFeedItemGQL, AddReactionGQL, RemoveReactionGQL, SendCommentGQL, DeleteCommentGQL, ReviewMediaGQL, \
+    DarkroomGQL
+
 from lapsepy.journal.factory.profile_factory import SaveBioGQL, SaveDisplayNameGQL, SaveUsernameGQL, SaveEmojisGQL, \
     SaveDOBGQL
 
@@ -152,19 +155,37 @@ class Journal:
         # Create DarkRoomMedia object
         darkroom_snap = DarkRoomMedia(
             im=im,
-            file_uuid=file_uuid,
+            media_id=file_uuid,
             taken_at=taken_at,
             develop_in=develop_in,
-            color_temperature=color_temperature,
-            exposure_value=exposure_value,
-            flash=flash,
-            timezone=timezone
         )
 
         self._sync_journal_call(query=query)
         logger.debug(f"Finished uploading image {file_uuid}.")
 
         return darkroom_snap
+
+    def query_darkroom(self) -> list[DarkRoomMedia]:
+        """
+        Queries your darkroom and returns the media inside it.
+        :return:
+        """
+        query = DarkroomGQL().to_dict()
+        response = self._sync_journal_call(query)
+
+        darkroom_data = response.get("data", {}).get("darkroom", [])
+
+        for drm in darkroom_data:
+            develops_at = drm.get("developsAt", {}).get("isoString")
+            media_id = drm.get("mediaId")
+            taken_at = drm.get("takenAt", {}).get("isoString")
+
+            darkroom_media = DarkRoomMedia(
+                develop_in=develops_at,
+                media_id=media_id,
+                taken_at=taken_at
+            )
+            yield darkroom_media
 
     def review_snaps(self, archived: list["ReviewMediaPartition"] | None = None,
                      deleted: list["ReviewMediaPartition"] | None = None,

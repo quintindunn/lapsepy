@@ -138,17 +138,17 @@ class Snap(Media):
 
 
 class DarkRoomMedia(Media):
-    def __init__(self, im: Image.Image, develop_in: int, file_uuid: str, taken_at: datetime, color_temperature: float,
-                 exposure_value: float, flash: bool, timezone: str):
+    def __init__(self, develop_in: int | str, media_id: str, taken_at: datetime, im: Image.Image | None = None):
 
-        self.im: Image = im
-        self.develops_at: datetime = datetime.utcnow() + timedelta(seconds=develop_in)
-        self.file_uuid: str = file_uuid
+        self.im: None | Image.Image = im
+
+        if isinstance(develop_in, int):
+            self.develops_at: datetime = datetime.utcnow() + timedelta(seconds=develop_in)
+        else:
+            self.develops_at = _dt_from_iso(develop_in)
+
+        self.media_id: str = media_id
         self.taken_at: datetime = taken_at
-        self.color_temperature: float = color_temperature
-        self.exposure_value: float = exposure_value
-        self.flash: bool = flash
-        self.timezone: str = timezone
 
         self._developed: bool = False
 
@@ -164,7 +164,7 @@ class DarkRoomMedia(Media):
     def review(self, iso_string: str | None | datetime = None):
         if iso_string is None:
             iso_string = datetime.utcnow()
-        return ReviewMediaPartition(media_id=self.file_uuid, iso_string=iso_string)
+        return ReviewMediaPartition(media_id=self.media_id, iso_string=iso_string)
 
     def archive(self, ctx: "Lapse", iso_string: str | None | datetime = None):
         partition = self.review(iso_string=iso_string)
