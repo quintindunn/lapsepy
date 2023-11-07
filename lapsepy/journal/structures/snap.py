@@ -10,6 +10,15 @@ import requests
 from datetime import datetime
 from PIL import Image
 
+from .core import Media
+
+import typing
+
+from lapsepy.journal.common.exceptions import SyncJournalException
+
+if typing.TYPE_CHECKING:
+    from lapsepy.lapse import Lapse
+
 logger = logging.getLogger("lapsepy.journal.structures.py")
 
 
@@ -17,7 +26,7 @@ def _dt_from_iso(dt_str: str):
     return datetime.fromisoformat(dt_str)
 
 
-class Snap:
+class Snap(Media):
     BASE_URL = "https://image.production.journal-api.lapse.app/image/upload/"
 
     def __init__(self, seen: bool, taken_at: datetime, develops_at: datetime, filtered_id: str | None,
@@ -49,6 +58,16 @@ class Snap:
             filtered_id=media['content'].get("filtered"),
             original_id=media['content'].get("original")
         )
+
+    def react(self, ctx: "Lapse", reaction: str):
+        if self.filtered_id:
+            msg_id = self.filtered_id.split("/filtered_0")[0]
+        elif self.original_id:
+            msg_id = self.original_id.split("/filtered_0")[0]
+        else:
+            raise SyncJournalException("Could not get ID of snap.")
+
+        ctx.add_reaction(msg_id=msg_id, reaction=reaction)
 
     def load_filtered(self, quality: int, fl_keep_iptc: bool) -> Image.Image:
         """
