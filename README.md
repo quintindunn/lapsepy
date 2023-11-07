@@ -8,6 +8,8 @@
 ## Install
 ```pip install lapsepy```
 
+## [Getting Started](https://github.com/quintindunn/lapsepy/blob/main/docs/GettingStarted.md)
+
 ## Features:
 * Modify your bio, display name, date of birth, emojis, and username. Many past what's allowed on the app!
 * Upload any image to your darkroom and make it develop at any time!
