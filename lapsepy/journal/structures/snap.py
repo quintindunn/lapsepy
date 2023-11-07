@@ -5,9 +5,11 @@ Date: 10/22/23
 
 import io
 import logging
+import time
+
 import requests
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from PIL import Image
 
 from .core import Media
@@ -137,8 +139,9 @@ class Snap(Media):
 class DarkRoomMedia(Media):
     def __init__(self, im: Image.Image, develop_in: int, file_uuid: str, taken_at: datetime, color_temperature: float,
                  exposure_value: float, flash: bool, timezone: str):
+
         self.im: Image = im
-        self.develop_in: int = develop_in
+        self.develops_at: datetime = datetime.utcnow() + timedelta(seconds=develop_in)
         self.file_uuid: str = file_uuid
         self.taken_at: datetime = taken_at
         self.color_temperature: float = color_temperature
@@ -146,4 +149,9 @@ class DarkRoomMedia(Media):
         self.flash: bool = flash
         self.timezone: str = timezone
 
-        self.developed = False
+        self._developed: bool = False
+
+    @property
+    def developed(self):
+        self._developed = datetime.utcnow() >= self.develops_at
+        return self._developed

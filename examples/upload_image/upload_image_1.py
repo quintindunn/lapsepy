@@ -1,4 +1,5 @@
 import os
+
 from PIL import Image
 from lapsepy.lapse import Lapse
 
@@ -7,4 +8,4 @@ if __name__ == '__main__':
     upload_im = Image.open("../imgs/example_1.jpg")
 
     # Develop in 15 seconds
-    lapse.upload_photo(im=upload_im, develop_in=15)
+    darkroom_snap = lapse.upload_photo(im=upload_im, develop_in=5)
