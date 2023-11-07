@@ -67,6 +67,13 @@ class Lapse:
                                              flash=flash,
                                              timezone=timezone)
 
+    def query_darkroom(self) -> list[DarkRoomMedia]:
+        """
+        Queries your darkroom and returns the media inside it.
+        :return:
+        """
+        return self.journal.query_darkroom()
+
     def review_snaps(self, archived: list["ReviewMediaPartition"] | None = None,
                      deleted: list["ReviewMediaPartition"] | None = None,
                      shared: list["ReviewMediaPartition"] | None = None):
