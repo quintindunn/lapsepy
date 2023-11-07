@@ -8,7 +8,7 @@ from datetime import datetime
 from lapsepy.auth.refresher import refresh
 from lapsepy.journal.journal import Journal
 from lapsepy.journal.common.exceptions import AuthTokenExpired
-from lapsepy.journal.structures.profile import Profile
+from lapsepy.journal.structures import Profile, DarkRoomMedia
 
 import logging
 
@@ -38,7 +38,7 @@ class Lapse:
                      color_temperature: float = 6000,
                      exposure_value: float = 9,
                      flash: bool = False,
-                     timezone: str = "America/New_York"):
+                     timezone: str = "America/New_York") -> DarkRoomMedia:
         """
         Upload an image to your Lapse darkroom
         :param im: Pillow object of the Image.

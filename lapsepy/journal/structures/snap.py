@@ -132,3 +132,18 @@ class Snap(Media):
             logger.debug("Loading \"original\" image.")
             self.original = self.load_original(quality=quality, fl_keep_iptc=fl_keep_iptc)
             return self.original
+
+
+class DarkRoomMedia(Media):
+    def __init__(self, im: Image.Image, develop_in: int, file_uuid: str, taken_at: datetime, color_temperature: float,
+                 exposure_value: float, flash: bool, timezone: str):
+        self.im: Image = im
+        self.develop_in: int = develop_in
+        self.file_uuid: str = file_uuid
+        self.taken_at: datetime = taken_at
+        self.color_temperature: float = color_temperature
+        self.exposure_value: float = exposure_value
+        self.flash: bool = flash
+        self.timezone: str = timezone
+
+        self.developed = False

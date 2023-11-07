@@ -20,7 +20,7 @@ from .factory.media_factory import ImageUploadURLGQL, CreateMediaGQL, SendInstan
 from lapsepy.journal.factory.profile_factory import SaveBioGQL, SaveDisplayNameGQL, SaveUsernameGQL, SaveEmojisGQL, \
     SaveDOBGQL
 
-from .structures import Snap, Profile, ProfileMusic, FriendsFeed, FriendNode
+from .structures import Snap, Profile, ProfileMusic, FriendsFeed, FriendNode, DarkRoomMedia
 
 import logging
 
@@ -34,6 +34,15 @@ def format_iso_time(dt: datetime) -> str:
     :return: Formatted datetime object.
     """
     return dt.isoformat()[:-3] + "Z"
+
+
+def parse_iso_time(iso_str: str) -> datetime:
+    iso_str = iso_str.removesuffix("Z")
+    try:
+        dt = datetime.fromisoformat(iso_str)
+        return dt
+    except ValueError:
+        raise ValueError("Invalid ISO format. The input should be in the format 'YYYY-MM-DDTHH:MM:SSZ'.")
 
 
 class Journal:
@@ -104,7 +113,7 @@ class Journal:
 
     def upload_photo(self, im: Image.Image, develop_in: int, file_uuid: str | None = None,
                      taken_at: datetime | None = None, color_temperature: float = 6000, exposure_value: float = 9,
-                     flash: bool = False, timezone: str = "America/New_York") -> None:
+                     flash: bool = False, timezone: str = "America/New_York") -> DarkRoomMedia:
         """
         Upload an image to your Lapse darkroom
         :param im: Pillow object of the Image.
@@ -127,7 +136,7 @@ class Journal:
 
         if taken_at is None:
             taken_at = datetime.utcnow()
-        taken_at = format_iso_time(taken_at)
+        taken_at_iso = format_iso_time(taken_at)
 
         # Get AWS upload url from Lapse API.
         logger.debug("Getting AWS url from Lapse API.")
@@ -140,15 +149,30 @@ class Journal:
         logger.debug("Registering image in Lapse darkroom.")
         query = CreateMediaGQL(
             file_uuid=file_uuid,
-            taken_at=taken_at,
+            taken_at=taken_at_iso,
             develop_in=develop_in,
             color_temperature=color_temperature,
             exposure_value=exposure_value,
             flash=flash,
             timezone=timezone,
         ).to_dict()
+
+        # Create DarkRoomMedia object
+        darkroom_snap = DarkRoomMedia(
+            im=im,
+            file_uuid=file_uuid,
+            taken_at=taken_at,
+            develop_in=develop_in,
+            color_temperature=color_temperature,
+            exposure_value=exposure_value,
+            flash=flash,
+            timezone=timezone
+        )
+
         self._sync_journal_call(query=query)
         logger.debug(f"Finished uploading image {file_uuid}.")
+
+        return darkroom_snap
 
     def upload_instant(self, im: Image.Image, user_id: str, file_uuid: str | None = None, im_id: str | None = None,
                        caption: str | None = None, time_limit: int = 10):
