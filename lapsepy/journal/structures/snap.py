@@ -66,10 +66,10 @@ class Snap(Media):
             original_id=media['content'].get("original")
         )
 
-    def react(self, ctx: "Lapse", reaction: str):
+    def add_reaction(self, ctx: "Lapse", reaction: str):
         ctx.add_reaction(msg_id=self.id, reaction=reaction)
 
-    def comment(self, ctx: "Lapse", text: str, comment_id: str | None = None):
+    def add_comment(self, ctx: "Lapse", text: str, comment_id: str | None = None):
         ctx.send_comment(msg_id=self.id, text=text, comment_id=comment_id)
 
     def load_filtered(self, quality: int, fl_keep_iptc: bool) -> Image.Image:

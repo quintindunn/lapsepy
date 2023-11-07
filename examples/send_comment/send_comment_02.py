@@ -14,4 +14,4 @@ if __name__ == '__main__':
             im = entry.filtered
             im.show(title=friend.user_display_name)
             if input(f"{friend.user_display_name}, Comment? (y/n) ") == "y":
-                entry.comment(ctx=lapse, text=input("Comment: "))
+                entry.add_comment(ctx=lapse, text=input("Comment: "))

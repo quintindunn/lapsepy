@@ -15,4 +15,4 @@ if __name__ == '__main__':
             im = entry.filtered
             im.show(title=friend.user_display_name)
             if input(f"{friend.user_display_name}, react? (y/n) ") == "y":
-                entry.react(ctx=lapse, reaction=input("Reaction: "))
+                entry.add_reaction(ctx=lapse, reaction=input("Reaction: "))
