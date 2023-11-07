@@ -8,7 +8,7 @@ from datetime import datetime
 from lapsepy.auth.refresher import refresh
 from lapsepy.journal.journal import Journal
 from lapsepy.journal.common.exceptions import AuthTokenExpired
-from lapsepy.journal.structures.profile import Profile
+from lapsepy.journal.structures import Profile, DarkRoomMedia, ReviewMediaPartition
 
 import logging
 
@@ -38,7 +38,7 @@ class Lapse:
                      color_temperature: float = 6000,
                      exposure_value: float = 9,
                      flash: bool = False,
-                     timezone: str = "America/New_York"):
+                     timezone: str = "America/New_York") -> DarkRoomMedia:
         """
         Upload an image to your Lapse darkroom
         :param im: Pillow object of the Image.
@@ -66,6 +66,18 @@ class Lapse:
                                              color_temperature=color_temperature, exposure_value=exposure_value,
                                              flash=flash,
                                              timezone=timezone)
+
+    def review_snaps(self, archived: list["ReviewMediaPartition"] | None = None,
+                     deleted: list["ReviewMediaPartition"] | None = None,
+                     shared: list["ReviewMediaPartition"] | None = None):
+        """
+        Reviews snaps from the darkroom
+        :param archived: List of ReviewMediaPartitions for Snaps to archive.
+        :param deleted: List of ReviewMediaPartitions for Snaps to delete.
+        :param shared: List of ReviewMediaPartitions for Snaps to share.
+        :return:
+        """
+        return self.journal.review_snaps(archived=archived, deleted=deleted, shared=shared)
 
     def upload_instant(self, im: Image, user: str | Profile, file_uuid: str | None = None, im_id: str | None = None,
                        caption: str | None = None, time_limit: int = 10):

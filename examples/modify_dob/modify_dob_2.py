@@ -8,7 +8,6 @@ if __name__ == '__main__':
 
     # DOB: yyyy-mm-dd
     dob = input("Date of birth (yyyy-mm-dd): ")
-
     try:
         dob_date = datetime.strptime(dob, "%Y-%m-%d")
     except ValueError:

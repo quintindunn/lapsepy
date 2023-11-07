@@ -5,10 +5,22 @@ Date: 10/22/23
 
 import io
 import logging
+import time
+
 import requests
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from PIL import Image
+
+from .core import Media
+
+import typing
+
+from lapsepy.journal.common.exceptions import SyncJournalException
+from ..common.utils import format_iso_time
+
+if typing.TYPE_CHECKING:
+    from lapsepy.lapse import Lapse
 
 logger = logging.getLogger("lapsepy.journal.structures.py")
 
@@ -17,7 +29,7 @@ def _dt_from_iso(dt_str: str):
     return datetime.fromisoformat(dt_str)
 
 
-class Snap:
+class Snap(Media):
     BASE_URL = "https://image.production.journal-api.lapse.app/image/upload/"
 
     def __init__(self, seen: bool, taken_at: datetime, develops_at: datetime, filtered_id: str | None,
@@ -27,6 +39,13 @@ class Snap:
         self.develops_at: datetime = develops_at
         self.filtered_id: str | None = filtered_id
         self.original_id: str | None = original_id
+
+        if self.filtered_id:
+            self.id = filtered_id.split("/filtered_0")[0]
+        elif self.original_id:
+            self.id = original_id.split("/filtered_0")[0]
+        else:
+            raise SyncJournalException("Could not get ID of snap.")
 
         self.filtered: Image.Image | None = None
         self.original: Image.Image | None = None
@@ -49,6 +68,12 @@ class Snap:
             filtered_id=media['content'].get("filtered"),
             original_id=media['content'].get("original")
         )
+
+    def add_reaction(self, ctx: "Lapse", reaction: str):
+        ctx.add_reaction(msg_id=self.id, reaction=reaction)
+
+    def add_comment(self, ctx: "Lapse", text: str, comment_id: str | None = None):
+        ctx.send_comment(msg_id=self.id, text=text, comment_id=comment_id)
 
     def load_filtered(self, quality: int, fl_keep_iptc: bool) -> Image.Image:
         """
@@ -110,3 +135,54 @@ class Snap:
             logger.debug("Loading \"original\" image.")
             self.original = self.load_original(quality=quality, fl_keep_iptc=fl_keep_iptc)
             return self.original
+
+
+class DarkRoomMedia(Media):
+    def __init__(self, im: Image.Image, develop_in: int, file_uuid: str, taken_at: datetime, color_temperature: float,
+                 exposure_value: float, flash: bool, timezone: str):
+
+        self.im: Image = im
+        self.develops_at: datetime = datetime.utcnow() + timedelta(seconds=develop_in)
+        self.file_uuid: str = file_uuid
+        self.taken_at: datetime = taken_at
+        self.color_temperature: float = color_temperature
+        self.exposure_value: float = exposure_value
+        self.flash: bool = flash
+        self.timezone: str = timezone
+
+        self._developed: bool = False
+
+    @property
+    def developed(self):
+        self._developed = datetime.utcnow() >= self.develops_at
+        return self._developed
+
+    @property
+    def reviewed(self):
+        return self.review()
+
+    def review(self, iso_string: str | None | datetime = None):
+        if iso_string is None:
+            iso_string = datetime.utcnow()
+        return ReviewMediaPartition(media_id=self.file_uuid, iso_string=iso_string)
+
+
+class ReviewMediaPartition:
+    def __init__(self, media_id: str, iso_string: str | None | datetime = None, tags: list = None):
+        self.media_id = media_id
+        iso_string = iso_string or datetime.utcnow()
+
+        if not isinstance(iso_string, str):
+            self.iso_string = format_iso_time(iso_string)
+        else:
+            self.iso_string = iso_string
+        self.tags = tags
+
+    def to_dict(self):
+        return {
+            "mediaId": self.media_id,
+            "reviewedAt": {
+                "isoString": self.iso_string
+            },
+            "tags": self.tags
+        }
