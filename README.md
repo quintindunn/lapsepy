@@ -1,4 +1,4 @@
-![LapsePy](./icon.png)
+![LapsePy](https://github.com/quintindunn/lapsepy/blob/main/icon.png?raw=true)
 <div align = "center">
 	<img src = "https://img.shields.io/pypi/v/lapsepy?label=PYPI%20Version">
 	<img src = "https://img.shields.io/pypi/l/lapsepy">

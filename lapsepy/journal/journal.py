@@ -4,6 +4,7 @@ Date: 10/22/23
 """
 
 import io
+import uuid
 
 from .common.exceptions import sync_journal_exception_router, SyncJournalException
 
@@ -13,12 +14,13 @@ from PIL import Image
 
 import requests
 
-from .factory.friends_factory import FriendsFeedItemsGQL, ProfileDetailsGQL
-from .factory.media_factory import ImageUploadURLGQL, CreateMediaGQL, SendInstantsGQL
+from .factory.friends_factory import FriendsFeedItemsGQL, ProfileDetailsGQL, SendKudosGQL
+from .factory.media_factory import ImageUploadURLGQL, CreateMediaGQL, SendInstantsGQL, StatusUpdateGQL, \
+    RemoveFriendsFeedItemGQL, AddReactionGQL, RemoveReactionGQL, SendCommentGQL, DeleteCommentGQL
 from lapsepy.journal.factory.profile_factory import SaveBioGQL, SaveDisplayNameGQL, SaveUsernameGQL, SaveEmojisGQL, \
     SaveDOBGQL
 
-from .structures import Profile, Snap
+from .structures import Snap, Profile, ProfileMusic, FriendsFeed, FriendNode
 
 import logging
 
@@ -164,7 +166,6 @@ class Journal:
         if file_uuid is None:
             # UUID in testing always started with "01HDCWT" with a total length of 26 chars.
             file_uuid = "01HDCWT" + str(uuid4()).upper().replace("-", "")[:19]
-            print(file_uuid)
 
         if im_id is None:
             # UUID in testing always started with "01HDCWT" with a total length of 26 chars.
@@ -178,57 +179,82 @@ class Journal:
                                 time_limit=time_limit).to_dict()
         self._sync_journal_call(query)
 
-    def get_friends_feed(self, count: int = 10) -> list[Profile]:
+    def create_status_update(self, text: str, msg_id: str | None):
+        """
+        Creates a status update on your Journal
+        :param text: Msg of the text to send
+        :param msg_id: Leave None if you don't know what you're doing. FORMAT: STATUS_UPDATE:<(str(uuid.uuid4))>
+        :return:
+        """
+        if msg_id is None:
+            msg_id = f"STATUS_UPDATE:{uuid.uuid4()}"
+        query = StatusUpdateGQL(text=text, msg_id=msg_id).to_dict()
+        response = self._sync_journal_call(query)
+
+        if not response.get("data", {}).get("createStatusUpdate", {}).get("success"):
+            raise SyncJournalException("Error create new status.")
+
+    def remove_status_update(self, msg_id: str, removed_at: datetime | None):
+        """
+        Removes a status update
+        :param msg_id: ID of the status update
+        :param removed_at: datetime object of when it was removed
+        :return:
+        """
+        if removed_at is None:
+            removed_at = datetime.now()
+        removed_at = format_iso_time(removed_at)
+
+        query = RemoveFriendsFeedItemGQL(msg_id=msg_id, iso_string=removed_at).to_dict()
+        response = self._sync_journal_call(query)
+
+        if not response.get("data", {}).get("removeFriendsFeedItem", {}).get("success"):
+            raise SyncJournalException("Failed removing status.")
+
+    def send_kudos(self, user_id: str):
+        """
+        Sends kudos (vibes) to a given user
+        :param user_id: id of the user to send kudos to.
+        :return:
+        """
+        query = SendKudosGQL(user_id=user_id).to_dict()
+        response = self._sync_journal_call(query)
+
+        if not response.get("data", {}).get("sendKudos", {}).get("success"):
+            raise SyncJournalException("Error sending kudos, could you already have reached your daily limit?")
+
+    def get_friends_feed(self, count: int = 10) -> FriendsFeed:
         """
         Gets your friend upload feed.
         :param count: How many collection to grab.
         :return: A list of profiles
         """
 
-        cursor = None
+        # Get all the user's friends in the range.
+        query = FriendsFeedItemsGQL(last=count).to_dict()
+        response = self._sync_journal_call(query)
 
-        profiles = {}
-        entry_ids = []
+        nodes: list[dict] = [i['node'] for i in response['data']['friendsFeedItems']['edges']]
 
-        # If it started to repeat itself.
-        maxed = False
-        for _ in range(1, count, 10):
-            logger.debug(f"Getting friends feed starting from cursor: {cursor or 'INITIAL'}")
-            query = FriendsFeedItemsGQL(cursor).to_dict()
-            response = self._sync_journal_call(query)
+        friend_nodes = []
 
-            # Where to query the new data from
-            cursor = response['data']['friendsFeedItems']['pageInfo']['endCursor']
-            if cursor is None:
-                logger.debug("Reached max cursor depth.")
-                break
+        for node in nodes:
+            profile_data = node.get("user")
+            profile = Profile.from_dict(profile_data)
 
-            # Trim useless data from response
-            feed_data = [i['node'] for i in response['data']['friendsFeedItems']['edges']]
+            timestamp = node.get("timestamp", {}).get("isoString")
 
-            # Create Profile objects which hold the media data in Profile.media
-            for node in feed_data:
-                username = node.get('user').get('username')
-                if username in profiles.keys():
-                    profile = profiles[username]
-                else:
-                    profile = Profile.from_dict(node.get("user"))
-                    profiles[username] = profile
+            entries = node.get("content").get("entries")
 
-                for entry in node['content']['entries']:
-                    eid = entry['id']
-                    if eid in entry_ids:
-                        logger.warn("Found duplicate of media, must've reached the end already...")
-                        maxed = True
-                        break
-                    entry_ids.append(eid)
-                    snap = Snap.from_dict(entry)
-                    profile.media.append(snap)
+            node_entry_objs = []
+            for entry in entries:
+                snap = Snap.from_dict(entry)
+                node_entry_objs.append(snap)
+                profile.media.append(snap)
 
-            if maxed:
-                break
+            friend_nodes.append(FriendNode(profile=profile, iso_string=timestamp, entries=node_entry_objs))
 
-        return list(profiles.values())
+        return FriendsFeed(friend_nodes)
 
     def get_profile_by_id(self, user_id: str, album_limit: int = 6, friends_limit: int = 10) -> Profile:
         """
@@ -249,6 +275,18 @@ class Journal:
         pd = response.get("data", {}).get("profile", {})
 
         def generate_profile_object(profile_data: dict) -> Profile:
+            music = profile_data.get("music")
+            if music is not None:
+                profile_music = ProfileMusic(
+                    artist=music.get("artist"),
+                    artwork_url=music.get("artworkUrl"),
+                    duration=music.get("duration"),
+                    song_title=music.get("songTitle"),
+                    song_url=music.get("songUrl")
+                )
+            else:
+                profile_music = None
+
             return Profile(
                 bio=profile_data.get('bio'),
                 blocked_me=profile_data.get('blockedMe'),
@@ -261,6 +299,7 @@ class Journal:
                 tags=profile_data.get("tags"),
                 user_id=profile_data.get('id'),
                 username=profile_data.get('username'),
+                profile_music=profile_music
             )
 
         profile = generate_profile_object(pd)
@@ -341,3 +380,58 @@ class Journal:
 
         if not response.get('data', {}).get("saveDateOfBirth", {}).get("success"):
             raise SyncJournalException("Error saving date of birth.")
+
+    def add_reaction(self, msg_id: str, reaction: str):
+        """
+        Adds a reaction to a message
+        :param msg_id: ID of msg to send reaction to.
+        :param reaction: Reaction to send.
+        :return:
+        """
+        query = AddReactionGQL(msg_id=msg_id, reaction=reaction).to_dict()
+        response = self._sync_journal_call(query)
+
+        if not response.get('data', {}).get("addMediaReaction", {}).get("success"):
+            raise SyncJournalException("Error adding reaction.")
+
+    def remove_reaction(self, msg_id: str, reaction: str):
+        """
+        removes a reaction from a message
+        :param msg_id: ID of msg to remove reaction from.
+        :param reaction: Reaction to remove.
+        :return:
+        """
+        query = RemoveReactionGQL(msg_id=msg_id, reaction=reaction).to_dict()
+        response = self._sync_journal_call(query)
+
+        if not response.get('data', {}).get("removeMediaReaction", {}).get("success"):
+            raise SyncJournalException("Error removing reaction.")
+
+    def create_comment(self, msg_id: str, text: str, comment_id: str | None = None):
+        """
+        Adds a comment to a post
+        :param comment_id: id of the comment, leave as None unless you know what you're doing
+        :param msg_id: id of the message
+        :param text: text to send in the comment
+        :return:
+        """
+        if comment_id is None:
+            comment_id = "01HEH" + str(uuid4()).upper().replace("-", "")[:20]
+        query = SendCommentGQL(comment_id=comment_id, msg_id=msg_id, text=text).to_dict()
+        response = self._sync_journal_call(query)
+
+        if not response.get('data', {}).get("sendMediaComment", {}).get("success"):
+            raise SyncJournalException("Error sending comment.")
+
+    def delete_comment(self, msg_id: str, comment_id: str):
+        """
+        Deletes a comment from a lapsepy post
+        :param msg_id: ID of the post
+        :param comment_id: ID of the comment
+        :return:
+        """
+        query = DeleteCommentGQL(msg_id=msg_id, comment_id=comment_id).to_dict()
+        response = self._sync_journal_call(query)
+
+        if not response.get('data', {}).get("deleteMediaComment", {}).get("success"):
+            raise SyncJournalException("Error deleting comment.")

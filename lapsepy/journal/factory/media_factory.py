@@ -125,3 +125,123 @@ class ImageUploadURLGQL(BaseGQL):
             self.variables["filename"] = f"{self.file_uuid}/filtered_0.heic"
         else:
             self.variables["filename"] = f"instant/{self.file_uuid}.heic"
+
+
+class StatusUpdateGQL(BaseGQL):
+    def __init__(self, text: str, msg_id: str):
+        super().__init__("CreateStatusUpdateGraphQLMutation",
+                         "mutation CreateStatusUpdateGraphQLMutation($input: CreateStatusUpdateInput!) "
+                         "{ createStatusUpdate(input: $input) { __typename success } }")
+        self.text = text
+        self.msg_id = msg_id
+
+        self.variables = {}
+
+        self._render_variables()
+
+    def _render_variables(self):
+        self.variables['input'] = {
+            "body": {
+                "text": self.text
+            },
+            "id": self.msg_id
+        }
+
+
+class RemoveFriendsFeedItemGQL(BaseGQL):
+    def __init__(self, msg_id: str, iso_string: str):
+        super().__init__("RemoveFriendsFeedItem",
+                         "mutation RemoveFriendsFeedItem($input: RemoveFriendsFeedItemInput!) "
+                         "{ removeFriendsFeedItem(input: $input) { __typename success } }")
+        self.msg_id = msg_id
+        self.iso_string = iso_string
+
+        self.variables = {}
+
+        self._render_variables()
+
+    def _render_variables(self):
+        self.variables['input'] = {
+            "id": self.msg_id,
+            "removedAt": {
+                "isoString": self.iso_string
+            }
+        }
+
+
+class AddReactionGQL(BaseGQL):
+    def __init__(self, msg_id: str, reaction: str):
+        super().__init__("AddReactionGraphQLMutation",
+                         "mutation AddReactionGraphQLMutation($input: AddMediaReactionInput!) "
+                         "{ addMediaReaction(input: $input) { __typename success } }")
+        self.msg_id = msg_id
+        self.reaction = reaction
+
+        self.variables = {}
+
+        self._render_variables()
+
+    def _render_variables(self):
+        self.variables['input'] = {
+            "id": self.msg_id,
+            "reaction": self.reaction
+        }
+
+
+class RemoveReactionGQL(BaseGQL):
+    def __init__(self, msg_id: str, reaction: str):
+        super().__init__("RemoveReactionGraphQLMutation",
+                         "mutation RemoveReactionGraphQLMutation($input: RemoveMediaReactionInput!) "
+                         "{ removeMediaReaction(input: $input) { __typename success } }")
+        self.msg_id = msg_id
+        self.reaction = reaction
+
+        self.variables = {}
+
+        self._render_variables()
+
+    def _render_variables(self):
+        self.variables['input'] = {
+            "id": self.msg_id,
+            "reaction": self.reaction
+        }
+
+
+class SendCommentGQL(BaseGQL):
+    def __init__(self, comment_id: str, msg_id: str, text: str):
+        super().__init__("SendCommentGraphQLMutation",
+                         "mutation SendCommentGraphQLMutation($input: SendMediaCommentInput!) "
+                         "{ sendMediaComment(input: $input) { __typename success } }")
+        self.comment_id = comment_id
+        self.msg_id = msg_id
+        self.text = text
+
+        self.variables = {}
+
+        self._render_variables()
+
+    def _render_variables(self):
+        self.variables['input'] = {
+            "id": self.comment_id,
+            "mediaId": self.msg_id,
+            "text": self.text
+        }
+
+
+class DeleteCommentGQL(BaseGQL):
+    def __init__(self, comment_id: str, msg_id: str):
+        super().__init__("DeleteCommentGraphQLMutation",
+                         "mutation DeleteCommentGraphQLMutation($input: DeleteMediaCommentInput!) "
+                         "{ deleteMediaComment(input: $input) { __typename success } }")
+        self.comment_id = comment_id
+        self.msg_id = msg_id
+
+        self.variables = {}
+
+        self._render_variables()
+
+    def _render_variables(self):
+        self.variables['input'] = {
+            "id": self.comment_id,
+            "mediaId": self.msg_id,
+        }
