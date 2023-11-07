@@ -102,6 +102,22 @@ Uploads a photo to you Lapse darkroom.
 * `flash: bool = False` - Whether to tell Lapse the image was taken with flash or not, usage of this is unknown, though might be for Lapse's server-side algorithms.
 * `timezone: str = "America/New_York"` - The timezone to report to Lapse that the image was taken in.
 
+#### Lapse.query_darkroom
+Queries your darkroom to get the items inside of it.
+```python3
+    Lapse.query_darkroom() -> list[DarkRoomMedia]
+```
+* Returns a list of [DarkRoomMedia](#) objects.
+
+#### Lapse.review_snaps
+Reviews media from your Lapse darkroom to decide what to do with them.
+```python3
+    Lapse.review_snaps(archived: list["ReviewMediaPartition"] | None = None, deleted: list["ReviewMediaPartition"] | None = None, shared: list["ReviewMediaPartition"] | None = None)
+```
+* `archived: list["ReviewMediaPartition"]` - A list of [ReviewMediaPartition](#)s which are to be archived.
+* `deleted: list["ReviewMediaPartition"]` - A list of [ReviewMediaPartition](#)s which are to be deleted.
+* `shared: list["ReviewMediaPartition"]` - A list of [ReviewMediaPartition](#)s which are to be shared.
+
 #### Lapse.send_comment
 Replies to media with a comment.
 ```python3
