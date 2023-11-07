@@ -23,3 +23,6 @@ upload_im = Image.open("./example_img.jpg")
 lapse.upload_photo(im=upload_im, develop_in=15)
 ```
 And that's it! Using this code it will upload the image `./example_img.jpg` (You have to create this file yourself) to you Lapse black room! It will develop in 15 seconds, you can change this number but once you send it to the black room it has to wait to develop.
+
+## Documentation:
+* #### [Lapse](./Lapse.md)
