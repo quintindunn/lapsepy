@@ -157,9 +157,18 @@ class DarkRoomMedia(Media):
         self._developed = datetime.utcnow() >= self.develops_at
         return self._developed
 
+    @property
+    def reviewed(self):
+        return self.review()
+
+    def review(self, iso_string: str | None | datetime = None):
+        if iso_string is None:
+            iso_string = datetime.utcnow()
+        return ReviewMediaPartition(media_id=self.file_uuid, iso_string=iso_string)
+
 
 class ReviewMediaPartition:
-    def __init__(self, media_id: str, iso_string: str | None = None, tags: list = None):
+    def __init__(self, media_id: str, iso_string: str | None | datetime = None, tags: list = None):
         self.media_id = media_id
         self.iso_string = iso_string or format_iso_time(datetime.utcnow())
         self.tags = tags
