@@ -14,6 +14,7 @@ from PIL import Image
 
 import requests
 
+from .common.utils import format_iso_time
 from .factory.friends_factory import FriendsFeedItemsGQL, ProfileDetailsGQL, SendKudosGQL
 from .factory.media_factory import ImageUploadURLGQL, CreateMediaGQL, SendInstantsGQL, StatusUpdateGQL, \
     RemoveFriendsFeedItemGQL, AddReactionGQL, RemoveReactionGQL, SendCommentGQL, DeleteCommentGQL, ReviewMediaGQL
@@ -25,15 +26,6 @@ from .structures import Snap, Profile, ProfileMusic, FriendsFeed, FriendNode, Da
 import logging
 
 logger = logging.getLogger("lapsepy.journal.journal.py")
-
-
-def format_iso_time(dt: datetime) -> str:
-    """
-    Takes in a datetime object and returns a str of the iso format Lapse uses.
-    :param dt: datetime object to convert.
-    :return: Formatted datetime object.
-    """
-    return dt.isoformat()[:-3] + "Z"
 
 
 def parse_iso_time(iso_str: str) -> datetime:
