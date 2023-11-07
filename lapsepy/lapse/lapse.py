@@ -169,7 +169,7 @@ class Lapse:
         """
         return self.journal.modify_emojis(emojis=emojis)
 
-    def update_dob(self, dob: str):
+    def update_dob(self, dob: str | datetime):
         """
         Updates your Lapse date of birth
         :param dob: date of birth in yyyy-mm-dd format

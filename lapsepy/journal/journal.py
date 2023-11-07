@@ -367,12 +367,15 @@ class Journal:
         if not response.get('data', {}).get("saveEmojis", {}).get("success"):
             raise SyncJournalException("Error saving emojis.")
 
-    def modify_dob(self, dob: str):
+    def modify_dob(self, dob: str | datetime):
         """
         Modifies your Lapse date of birth
         :param dob: Date of birth (yyyy-mm-dd)
         :return: None
         """
+        if isinstance(dob, datetime):
+            dob = dob.strftime("%Y-%m-%d")
+
         query = SaveDOBGQL(dob=dob).to_dict()
         response = self._sync_journal_call(query)
 
