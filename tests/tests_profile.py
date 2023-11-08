@@ -6,6 +6,8 @@ from unittest import TestCase
 
 lapse = Lapse(os.getenv("LAPSE-TEST-REFRESH"))
 
+test_lapse_profile = lapse.get_current_user()
+
 
 class TestDOB(TestCase):
     def test_modify_dob_year_greater_than_current(self):
@@ -51,3 +53,10 @@ class TestEmojis(TestCase):
 
     def test_emojis_text(self):
         lapse.update_emojis(["This is a test", "This is also part of the test", "This too", "And this", "Me too!"])
+
+
+class TestKudos(TestCase):
+    def test_kudos(self):
+        uid = test_lapse_profile.user_id
+        lapse.send_kudos(uid)
+        lapse.send_kudos(uid)
