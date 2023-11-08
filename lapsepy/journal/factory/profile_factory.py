@@ -103,3 +103,32 @@ class SaveDOBGQL(BaseGQL):
             },
             "visibility": self.visibility
         }
+
+
+class CurrentUserGQL(BaseGQL):
+    def __init__(self):
+        super().__init__("CurrentUserGraphQLQuery",
+                         "query CurrentUserGraphQLQuery { user { __typename ...UserDetails } }\nfragment UserDetails "
+                         "on User { __typename profile { __typename ...ViewProfileSummaryFragment selectsVideo { "
+                         "__typename media { __typename imageFilename } } } profileSettings { __typename displayName "
+                         "{ __typename displayName lastUpdatedAt { __typename isoString } } username { __typename "
+                         "username lastUpdatedAt { __typename isoString } } emojis { __typename emojis lastUpdatedAt "
+                         "{ __typename isoString } } bio { __typename bio lastUpdatedAt { __typename isoString } } "
+                         "dob { __typename dob { __typename date } visibility lastUpdatedAt { __typename isoString } "
+                         "} } inviteTags { __typename message profileImageUrls mediaPreviewUrls taggedMediaCount } "
+                         "onboardingState { __typename hasCompletedAddFriends hasCompletedInviteFriends "
+                         "hasCompletedLockscreenWidget } invites { __typename requiresInvite "
+                         "additionalInvitesRequested { __typename isoString } inviteCodes { __typename code createdAt "
+                         "{ __typename isoString } sentTo { __typename sent hashedPhoneNumber sentVia } } usedCodes { "
+                         "__typename code usedBy { __typename ...CoreProfileFragment } usedAt { __typename isoString "
+                         "} } inviteCopy { __typename codes score } } }\nfragment ViewProfileSummaryFragment on "
+                         "Profile { __typename ...CoreProfileFragment ...ViewProfileSelectsFragment "
+                         "...ViewProfileMusicFragment bio emojis { __typename emojis } kudos { __typename emoji "
+                         "totalCount lastSentAt { __typename isoString } } tags { __typename type text } }\nfragment "
+                         "CoreProfileFragment on Profile { __typename id displayName profilePhotoName username "
+                         "friendStatus isBlocked blockedMe hashedPhoneNumber joinedAt { __typename isoString } "
+                         "}\nfragment ViewProfileSelectsFragment on Profile { __typename selectsVideo { __typename "
+                         "...CoreRecapVideoFragment } }\nfragment CoreRecapVideoFragment on RecapVideo { __typename "
+                         "id videoFilename totalDuration interval }\nfragment ViewProfileMusicFragment on Profile { "
+                         "__typename music { __typename ...ProfileMusicDetails } }\nfragment ProfileMusicDetails on "
+                         "ProfileMusic { __typename artist artworkUrl duration songTitle songUrl }")
