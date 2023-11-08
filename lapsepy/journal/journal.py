@@ -18,7 +18,7 @@ from .factory.friends_factory import FriendsFeedItemsGQL, ProfileDetailsGQL, Sen
 from .factory.media_factory import ImageUploadURLGQL, CreateMediaGQL, SendInstantsGQL, StatusUpdateGQL, \
     RemoveFriendsFeedItemGQL, AddReactionGQL, RemoveReactionGQL, SendCommentGQL, DeleteCommentGQL
 from lapsepy.journal.factory.profile_factory import SaveBioGQL, SaveDisplayNameGQL, SaveUsernameGQL, SaveEmojisGQL, \
-    SaveDOBGQL
+    SaveDOBGQL, CurrentUserGQL
 
 from .structures import Snap, Profile, ProfileMusic, FriendsFeed, FriendNode
 
@@ -255,6 +255,18 @@ class Journal:
             friend_nodes.append(FriendNode(profile=profile, iso_string=timestamp, entries=node_entry_objs))
 
         return FriendsFeed(friend_nodes)
+
+    def get_current_user(self) -> Profile:
+        """
+        Gets the current user information
+        :return: dict of current user information
+        """
+        query = CurrentUserGQL().to_dict()
+        response = self._sync_journal_call(query)
+        pd = response.get("data", {}).get("user", {}).get("profile", {})
+        profile = Profile.from_dict(pd)
+
+        return profile
 
     def get_profile_by_id(self, user_id: str, album_limit: int = 6, friends_limit: int = 10) -> Profile:
         """

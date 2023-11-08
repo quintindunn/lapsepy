@@ -137,6 +137,13 @@ class Lapse:
         """
         return self.journal.get_profile_by_id(user_id=user_id, album_limit=album_limit, friends_limit=friends_limit)
 
+    def get_current_user(self) -> Profile:
+        """
+        Gets the current user information
+        :return: dict of current user information
+        """
+        return self.journal.get_current_user()
+
     def update_bio(self, bio: str):
         """
         Updates your Lapse bio
