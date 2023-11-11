@@ -359,7 +359,7 @@ class Journal:
                 tags=profile_data.get("tags"),
                 user_id=profile_data.get('id'),
                 username=profile_data.get('username'),
-                hashed_phone_number=pd.get("hashedPhoneNumber"),
+                hashed_phone_number=profile_data.get("hashedPhoneNumber"),
                 profile_music=profile_music
             )
 
