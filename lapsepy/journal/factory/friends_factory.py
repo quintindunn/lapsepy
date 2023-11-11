@@ -185,3 +185,26 @@ class SendKudosGQL(BaseGQL):
         self.variables['input'] = {
             "id": self.user_id
         }
+
+
+class SearchUsersGQL(BaseGQL):
+    def __init__(self, term: str, first: int = 10):
+        super().__init__("SearchUsersGraphQLQuery",
+                         "query SearchUsersGraphQLQuery($searchTerm: String!, $first: Int, $after: String, "
+                         "$last: Int, $before: String) { searchUsers( searchTerm: $searchTerm first: $first after: "
+                         "$after last: $last before: $before ) { __typename edges { __typename cursor node { "
+                         "__typename id displayName profilePhotoName username friendStatus blockedMe isBlocked } } "
+                         "pageInfo { __typename startCursor endCursor hasNextPage hasPreviousPage } } }")
+
+        self.first = first
+        self.term = term
+
+        self.variables = {}
+
+        self._render_variables()
+
+    def _render_variables(self):
+        self.variables = {
+            "first": self.first,
+            "searchTerm": self.term
+        }

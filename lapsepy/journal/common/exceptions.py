@@ -12,6 +12,14 @@ class SyncJournalException(Exception):
         return self.message
 
 
+class UserNotFoundException(SyncJournalException):
+    def __init__(self, message: str = ""):
+        self.message = message
+
+    def __str__(self):
+        return self.message
+
+
 class AuthTokenError(SyncJournalException):
     def __init__(self, message: str = ""):
         self.message = message
@@ -26,6 +34,8 @@ class AuthTokenExpired(AuthTokenError):
 
     def __str__(self):
         return self.message
+
+
 
 
 def sync_journal_exception_router(error: dict) -> SyncJournalException:

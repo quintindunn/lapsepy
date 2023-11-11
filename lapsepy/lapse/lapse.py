@@ -7,7 +7,7 @@ from datetime import datetime
 
 from lapsepy.auth.refresher import refresh
 from lapsepy.journal.journal import Journal
-from lapsepy.journal.common.exceptions import AuthTokenExpired
+from lapsepy.journal.common.exceptions import AuthTokenExpired, UserNotFoundException
 from lapsepy.journal.structures import Profile, DarkRoomMedia, ReviewMediaPartition
 
 import logging
@@ -239,3 +239,27 @@ class Lapse:
         :return:
         """
         return self.journal.delete_comment(msg_id=msg_id, comment_id=comment_id)
+
+    def search_for_user(self, term: str, first: int = 10):
+        """
+        Searches for a User using Lapse API
+        :param term: Term to search for
+        :param first: How many results to get at maximum (Not used)
+        :return:
+        """
+        return self.journal.search_for_user(term=term, first=first)
+
+    def get_profile_by_username(self, username: str, album_limit: int = 6, friends_limit: int = 10) -> Profile:
+        """
+        Wrapper for Lapse.search_for_user, returns a Profile object from a username.
+        :param username: Username to search for.
+        :param album_limit: Max amount of albums to get.
+        :param friends_limit: Max amount of friends to get.
+        :return:
+        """
+        search_results = self.journal.search_for_user(term=username, first=10)
+
+        if search_results[0].username == username:
+            return search_results[0].to_profile(self, album_limit=album_limit, friends_limit=friends_limit)
+
+        raise UserNotFoundException(f"Could not find user with username: \"{username}\"")

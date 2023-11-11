@@ -15,7 +15,7 @@ from PIL import Image
 import requests
 
 from .common.utils import format_iso_time
-from .factory.friends_factory import FriendsFeedItemsGQL, ProfileDetailsGQL, SendKudosGQL
+from .factory.friends_factory import FriendsFeedItemsGQL, ProfileDetailsGQL, SendKudosGQL, SearchUsersGQL
 
 from .factory.media_factory import ImageUploadURLGQL, CreateMediaGQL, SendInstantsGQL, StatusUpdateGQL, \
     RemoveFriendsFeedItemGQL, AddReactionGQL, RemoveReactionGQL, SendCommentGQL, DeleteCommentGQL, ReviewMediaGQL, \
@@ -24,7 +24,8 @@ from .factory.media_factory import ImageUploadURLGQL, CreateMediaGQL, SendInstan
 from lapsepy.journal.factory.profile_factory import SaveBioGQL, SaveDisplayNameGQL, SaveUsernameGQL, SaveEmojisGQL, \
     SaveDOBGQL, CurrentUserGQL
 
-from .structures import Snap, Profile, ProfileMusic, FriendsFeed, FriendNode, DarkRoomMedia, ReviewMediaPartition
+from .structures import Snap, Profile, ProfileMusic, FriendsFeed, FriendNode, DarkRoomMedia, ReviewMediaPartition, \
+    SearchUser
 
 import logging
 
@@ -511,3 +512,29 @@ class Journal:
 
         if not response.get('data', {}).get("deleteMediaComment", {}).get("success"):
             raise SyncJournalException("Error deleting comment.")
+
+    def search_for_user(self, term: str, first: int = 10) -> list[SearchUser]:
+        """
+        Searches for a User using Lapse API
+        :param term: Term to search for
+        :param first: How many results to get at maximum (Not used)
+        :return:
+        """
+        query = SearchUsersGQL(term=term, first=first).to_dict()
+        response = self._sync_journal_call(query)
+
+        users = []
+
+        for edge in response.get("data", {}).get("searchUsers", {}).get("edges"):
+            node = edge['node']
+            search_user = SearchUser(user_id=node.get("id"),
+                                     display_name=node.get("displayName"),
+                                     profile_photo_name=node.get("profilePhotoName"),
+                                     username=node.get("username"),
+                                     friend_status=node.get("friendStatus"),
+                                     blocked_me=node.get("blockedMe"),
+                                     is_blocked=node.get("isBlocked")
+                                     )
+            users.append(search_user)
+
+        return users
