@@ -8,6 +8,8 @@
 ## Install
 ```pip install lapsepy```
 
+## [Getting Started](https://github.com/quintindunn/lapsepy/blob/main/docs/GettingStarted.md)
+
 ## Features:
 * Modify your bio, display name, date of birth, emojis, and username. Many past what's allowed on the app!
 * Upload any image to your darkroom and make it develop at any time!
@@ -17,6 +19,9 @@
 One of the most challenging parts of this project is authentication, it uses Apple's App Attest in place of a captcha. As far as I'm aware there's no work around without jailbreaking your phone / using a modified version of the app. I'm planning on waiting for Lapse's Android version to try to reverse engineer it there.
 
 ### How to get your refresh token (Windows-Iphone):
+#### Method 1 (Semi automated):
+* Follow the instructions on my [LapsePyRefreshTokenSniffer](https://github.com/quintindunn/LapseRefreshTokenSniffer/) project.
+#### Method 2 (Completely manual):
 * Log out of the app
 * Install [MitMProxy](https://mitmproxy.org/) **Make sure to install all certificates required. [Certificates](https://docs.mitmproxy.org/stable/concepts-certificates/)**
 * Start MitMWeb ignoring the host `register.appattest.apple.com` using `mitmweb --ignore-hosts register.appattest.apple.com`

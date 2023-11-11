@@ -23,7 +23,8 @@ def _dt_from_iso(dt_str: str):
 class Profile:
     def __init__(self, user_id: str, username: str, display_name: str, profile_photo_name: str, bio: str | None,
                  emojis: list[str], is_friends: bool, blocked_me: bool, kudos: int, tags: list[dict],
-                 is_blocked: bool = False, friends: list["Profile"] = None, profile_music: "ProfileMusic" = None):
+                 hashed_phone_number: str, is_blocked: bool = False, friends: list["Profile"] = None,
+                 profile_music: "ProfileMusic" = None):
         if friends is None:
             friends = []
 
@@ -35,6 +36,7 @@ class Profile:
         self.kudos = kudos
         self.profile_photo_name: str = profile_photo_name
         self.tags = tags
+        self.hashed_phone_number = hashed_phone_number
         self.user_id: str = user_id
         self.username: str = username
         self.media: list[Snap] = []
@@ -79,6 +81,7 @@ class Profile:
             tags=pd.get("tags"),
             user_id=pd.get('id'),
             username=pd.get('username'),
+            hashed_phone_number=pd.get("hashedPhoneNumber"),
             profile_music=profile_music
         )
 
