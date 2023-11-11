@@ -16,8 +16,8 @@ class SearchUser:
         self.blocked_me = blocked_me
         self.is_blocked = is_blocked
 
-    def to_profile(self, ctx: "Lapse"):
-        return ctx.get_profile_by_id(user_id=self.user_id)
+    def to_profile(self, ctx: "Lapse", album_limit: int = 6, friends_limit: int = 10):
+        return ctx.get_profile_by_id(user_id=self.user_id, album_limit=album_limit, friends_limit=friends_limit)
 
     def __str__(self):
         return f"<SearchUser username=\"{self.username}\" user_id=\"{self.user_id}\">"
