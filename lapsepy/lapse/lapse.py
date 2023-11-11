@@ -239,3 +239,12 @@ class Lapse:
         :return:
         """
         return self.journal.delete_comment(msg_id=msg_id, comment_id=comment_id)
+
+    def search_for_user(self, term: str, first: int = 10):
+        """
+        Searches for a User using Lapse API
+        :param term: Term to search for
+        :param first: How many results to get at maximum (Not used)
+        :return:
+        """
+        return self.journal.search_for_user(term=term, first=first)
