@@ -22,7 +22,7 @@ from .factory.media_factory import ImageUploadURLGQL, CreateMediaGQL, SendInstan
     DarkroomGQL
 
 from lapsepy.journal.factory.profile_factory import SaveBioGQL, SaveDisplayNameGQL, SaveUsernameGQL, SaveEmojisGQL, \
-    SaveDOBGQL
+    SaveDOBGQL, CurrentUserGQL
 
 from .structures import Snap, Profile, ProfileMusic, FriendsFeed, FriendNode, DarkRoomMedia, ReviewMediaPartition
 
@@ -316,6 +316,18 @@ class Journal:
 
         return FriendsFeed(friend_nodes)
 
+    def get_current_user(self) -> Profile:
+        """
+        Gets the current user information
+        :return: dict of current user information
+        """
+        query = CurrentUserGQL().to_dict()
+        response = self._sync_journal_call(query)
+        pd = response.get("data", {}).get("user", {}).get("profile", {})
+        profile = Profile.from_dict(pd)
+
+        return profile
+
     def get_profile_by_id(self, user_id: str, album_limit: int = 6, friends_limit: int = 10) -> Profile:
         """
         Get a Profile object
@@ -359,6 +371,7 @@ class Journal:
                 tags=profile_data.get("tags"),
                 user_id=profile_data.get('id'),
                 username=profile_data.get('username'),
+                hashed_phone_number=pd.get("hashedPhoneNumber"),
                 profile_music=profile_music
             )
 
