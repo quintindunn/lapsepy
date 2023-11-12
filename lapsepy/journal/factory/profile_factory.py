@@ -132,3 +132,28 @@ class CurrentUserGQL(BaseGQL):
                          "id videoFilename totalDuration interval }\nfragment ViewProfileMusicFragment on Profile { "
                          "__typename music { __typename ...ProfileMusicDetails } }\nfragment ProfileMusicDetails on "
                          "ProfileMusic { __typename artist artworkUrl duration songTitle songUrl }")
+
+
+class SaveMusicGQL(BaseGQL):
+    def __init__(self, artist: str, artwork_url: str, duration: int, song_title: str, song_url: str):
+        super().__init__("SaveMusicGraphQLMutation",
+                         "mutation SaveMusicGraphQLMutation($input: SaveMusicInput) { saveMusic(input: $input) "
+                         "{ __typename success } }")
+        self.artist = artist
+        self.artwork_url = artwork_url
+        self.duration = duration
+        self.song_title = song_title
+        self.song_url = song_url
+
+        self.variables = {}
+
+        self._render_variables()
+
+    def _render_variables(self):
+        self.variables['input'] = {
+            "artist": self.artist,
+            "artworkUrl": self.artwork_url,
+            "duration": self.duration,
+            "songTitle": self.song_title,
+            "songUrl": self.song_url
+        }
