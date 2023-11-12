@@ -203,6 +203,19 @@ class Lapse:
         """
         return self.journal.modify_dob(dob=dob)
 
+    def update_music(self, artist: str, artwork_url: str, duration: int, song_title: str, song_url: str):
+        """
+        Modifies your Lapse profile's music
+        :param artist: Artist of the song
+        :param artwork_url: URL to the artwork for the song
+        :param duration: Duration of the MP3
+        :param song_title: Title of the Song
+        :param song_url: URL of the song's MP3.
+        :return:
+        """
+        return self.journal.modify_music(artist=artist, artwork_url=artwork_url, duration=duration,
+                                         song_title=song_title, song_url=song_url)
+
     def add_reaction(self, msg_id: str, reaction: str):
         """
         Adds a reaction to a message

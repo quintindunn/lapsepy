@@ -22,7 +22,7 @@ from .factory.media_factory import ImageUploadURLGQL, CreateMediaGQL, SendInstan
     DarkroomGQL
 
 from lapsepy.journal.factory.profile_factory import SaveBioGQL, SaveDisplayNameGQL, SaveUsernameGQL, SaveEmojisGQL, \
-    SaveDOBGQL, CurrentUserGQL
+    SaveDOBGQL, CurrentUserGQL, SaveMusicGQL
 
 from .structures import Snap, Profile, ProfileMusic, FriendsFeed, FriendNode, DarkRoomMedia, ReviewMediaPartition, \
     SearchUser
@@ -457,6 +457,23 @@ class Journal:
 
         if not response.get('data', {}).get("saveDateOfBirth", {}).get("success"):
             raise SyncJournalException("Error saving date of birth.")
+
+    def modify_music(self, artist: str, artwork_url: str, duration: int, song_title: str, song_url: str):
+        """
+        Modifies your Lapse profile's music
+        :param artist: Artist of the song
+        :param artwork_url: URL to the artwork for the song
+        :param duration: Duration of the MP3
+        :param song_title: Title of the Song
+        :param song_url: URL of the song's MP3.
+        :return:
+        """
+        query = SaveMusicGQL(artist=artist, artwork_url=artwork_url, duration=duration, song_title=song_title,
+                             song_url=song_url).to_dict()
+        response = self._sync_journal_call(query)
+
+        if not response.get('data', {}).get("saveMusic", {}).get("success"):
+            raise SyncJournalException("Error saving Music.")
 
     def add_reaction(self, msg_id: str, reaction: str):
         """
