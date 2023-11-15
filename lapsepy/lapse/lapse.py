@@ -287,3 +287,14 @@ class Lapse:
             user = user.user_id
 
         return self.journal.block_user(user_id=user)
+
+    def unblock_profile(self, user: str | Profile):
+        """
+        Unblocks a user from your Lapse account
+        :param user: ID / Object of user to unblock.
+        :return:
+        """
+        if isinstance(user, Profile):
+            user = user.user_id
+
+        return self.journal.unblock_user(user_id=user)
