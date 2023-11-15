@@ -276,3 +276,25 @@ class Lapse:
             return search_results[0].to_profile(self, album_limit=album_limit, friends_limit=friends_limit)
 
         raise UserNotFoundException(f"Could not find user with username: \"{username}\"")
+
+    def block_profile(self, user: str | Profile):
+        """
+        Blocks a user from your Lapse account
+        :param user: ID / Object of user to block.
+        :return:
+        """
+        if isinstance(user, Profile):
+            user = user.user_id
+
+        return self.journal.block_user(user_id=user)
+
+    def unblock_profile(self, user: str | Profile):
+        """
+        Unblocks a user from your Lapse account
+        :param user: ID / Object of user to unblock.
+        :return:
+        """
+        if isinstance(user, Profile):
+            user = user.user_id
+
+        return self.journal.unblock_user(user_id=user)

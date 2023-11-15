@@ -22,7 +22,7 @@ from .factory.media_factory import ImageUploadURLGQL, CreateMediaGQL, SendInstan
     DarkroomGQL
 
 from lapsepy.journal.factory.profile_factory import SaveBioGQL, SaveDisplayNameGQL, SaveUsernameGQL, SaveEmojisGQL, \
-    SaveDOBGQL, CurrentUserGQL, SaveMusicGQL
+    SaveDOBGQL, CurrentUserGQL, SaveMusicGQL, BlockProfileGQL, UnblockProfileGQL
 
 from .structures import Snap, Profile, ProfileMusic, FriendsFeed, FriendNode, DarkRoomMedia, ReviewMediaPartition, \
     SearchUser
@@ -555,3 +555,27 @@ class Journal:
             users.append(search_user)
 
         return users
+
+    def block_user(self, user_id: str):
+        """
+        Send a user blocking API call
+        :param user_id: ID of the user to block
+        :return:
+        """
+        query = BlockProfileGQL(user_id=user_id).to_dict()
+        response = self._sync_journal_call(query)
+
+        if not response.get("data", {}).get("blockProfile", {}).get("success"):
+            raise SyncJournalException(f"Error blocking user {user_id}.")
+
+    def unblock_user(self, user_id: str):
+        """
+        Send a user unblocking API call
+        :param user_id: ID of the user to unblock
+        :return:
+        """
+        query = UnblockProfileGQL(user_id=user_id).to_dict()
+        response = self._sync_journal_call(query)
+
+        if not response.get("data", {}).get("unblockProfile", {}).get("success"):
+            raise SyncJournalException(f"Error unblocking user {user_id}.")

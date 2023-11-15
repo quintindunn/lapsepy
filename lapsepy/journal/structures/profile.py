@@ -119,6 +119,12 @@ class Profile:
     def send_kudos(self, ctx: "Lapse"):
         return ctx.send_kudos(user=self)
 
+    def block(self, ctx: "Lapse"):
+        return ctx.block_profile(user=self)
+
+    def unblock(self, ctx: "Lapse"):
+        return ctx.unblock_profile(user=self)
+
     def __str__(self):
         return f"<Lapse profile \"{self.username}\" {self.user_id}>"
 
