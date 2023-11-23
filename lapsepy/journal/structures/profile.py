@@ -24,7 +24,7 @@ class Profile:
     def __init__(self, user_id: str, username: str, display_name: str, profile_photo_name: str, bio: str | None,
                  emojis: list[str], is_friends: bool, blocked_me: bool, kudos: int, tags: list[dict],
                  hashed_phone_number: str, is_blocked: bool = False, friends: list["Profile"] = None,
-                 profile_music: "ProfileMusic" = None):
+                 profile_music: "ProfileMusic" = None, albums: list["Album"] | None = None):
         if friends is None:
             friends = []
 
@@ -41,6 +41,7 @@ class Profile:
         self.username: str = username
         self.media: list[Snap] = []
         self.is_blocked = is_blocked
+        self.albums = albums
 
         self.friends: list["Profile"] = friends
         self.profile_music = profile_music

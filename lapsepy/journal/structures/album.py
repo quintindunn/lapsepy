@@ -7,6 +7,10 @@ from PIL import Image
 import io
 import requests
 import logging
+from typing import TYPE_CHECKING, Union
+
+if TYPE_CHECKING:
+    from lapsepy.journal.structures.profile import Profile
 
 logger = logging.getLogger("lapsepy.journal.structures.album.py")
 
@@ -57,11 +61,10 @@ class AlbumMedia(ReactableMedia):
     @staticmethod
     def from_dict(album_data: dict):
         media_data = album_data.get("media", {})
-
         return AlbumMedia(
             added_at=_parse_iso_time(album_data.get('addedAt', {}).get("isoString")),
             media_id=media_data.get("id", None),
-            taken_at=_parse_iso_time(media_data.get("takenAt", {}).get("isoString")),
+            taken_at=_parse_iso_time(media_data.get("takenAt", {}).get("isoString", "")),
             capturer_id=media_data.get("takenBy", {}).get("id", "")
         )
 
@@ -72,9 +75,17 @@ class AlbumMedia(ReactableMedia):
 
 
 class Album:
-    def __init__(self, album_id, media: list[AlbumMedia]):
+    def __init__(self, album_id, media: list[AlbumMedia], album_name: str | None = None, visibility: str | None = None,
+                 created_at: datetime | None = None, updated_at: datetime = None, owner: Union["Profile", None] = None):
         self.album_id = album_id
         self.media = media
+
+        self.album_name = album_name
+        self.visibility = visibility
+        self.created_at = created_at
+        self.updated_at = updated_at
+
+        self.owner = owner
 
     def __str__(self):
         return f"<Lapse album id=\"{self.album_id}\" size={len(self.media)}>"

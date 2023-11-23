@@ -362,7 +362,7 @@ class Journal:
             else:
                 profile_music = None
 
-            return Profile(
+            usr_profile = Profile(
                 bio=profile_data.get('bio'),
                 blocked_me=profile_data.get('blockedMe'),
                 display_name=profile_data.get('displayName'),
@@ -377,6 +377,38 @@ class Journal:
                 hashed_phone_number=profile_data.get("hashedPhoneNumber"),
                 profile_music=profile_music
             )
+
+            album_data = profile_data.get("albums", {}).get("edges", {})
+
+            albums = []
+
+            for album_edge in album_data:
+                album_node = album_edge['node']
+
+                album_media = []
+                for media_edge in album_node.get("media", {}).get("edges", {}):
+                    node = media_edge.get("node")
+                    # added_at: datetime, media_id: str, taken_at: datetime, capturer_id: str
+                    album_media.append(AlbumMedia(
+                        added_at=parse_iso_time(node.get("addedAt", {}).get("isoString")),
+                        taken_at=parse_iso_time(node.get("addedAt", {}).get("isoString")),
+                        media_id=node.get("media", {}).get("id"),
+                        capturer_id=usr_profile.user_id
+                    ))
+
+                albums.append(Album(
+                    album_id=album_node.get("id"),
+                    media=album_media,
+                    album_name=album_node.get("name"),
+                    visibility=album_node.get("visibility"),
+                    created_at=parse_iso_time(album_node.get("createdAt", {}).get("isoString")),
+                    updated_at=parse_iso_time(album_node.get("updatedAt", {}).get("isoString")),
+                    owner=usr_profile
+                ))
+
+            usr_profile.albums = albums
+
+            return usr_profile
 
         profile = generate_profile_object(pd)
 
