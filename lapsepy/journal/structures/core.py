@@ -17,3 +17,6 @@ class ReactableMedia(Media):
 
     def add_comment(self, ctx: "Lapse", text: str, comment_id: str | None = None):
         ctx.send_comment(msg_id=self.id, text=text, comment_id=comment_id)
+
+    def remove_reaction(self, ctx: "Lapse", reaction: str):
+        ctx.remove_reaction(msg_id=self.id, reaction=reaction)
