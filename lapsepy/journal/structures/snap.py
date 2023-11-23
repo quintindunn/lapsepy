@@ -117,7 +117,7 @@ class Snap(Media):
         image = Image.open(bytes_io)
         return image
 
-    def load_snap(self, quality: int = 100, fl_keep_iptc: bool = True) -> Image.Image:
+    def load_snap(self, quality: int = 65, fl_keep_iptc: bool = True) -> Image.Image:
         """
         Returns a Pillow Image of either the filtered image or original image.
         :param quality: Quality of the image (1-100)
