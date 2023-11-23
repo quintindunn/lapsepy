@@ -85,7 +85,7 @@ class Profile:
             profile_music=profile_music
         )
 
-    def load_profile_picture(self, quality: int = 100, height: int | None = None) -> Image.Image:
+    def load_profile_picture(self, quality: int = 65, height: int | None = None) -> Image.Image:
         """
         Loads the Profile's profile picture into memory by making an HTTP request to Lapse's servers.
         :param quality: Quality of the image (1-100)
