@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from .core import Media
+from .core import ReactableMedia
 
 from PIL import Image
 
@@ -21,11 +21,11 @@ def _parse_iso_time(iso_str: str) -> datetime:
         raise ValueError("Invalid ISO format. The input should be in the format 'YYYY-MM-DDTHH:MM:SSZ'.")
 
 
-class AlbumMedia(Media):
+class AlbumMedia(ReactableMedia):
     BASE_URL = "https://image.production.journal-api.lapse.app/image/upload/"
 
     def __init__(self, added_at: datetime, media_id: str, taken_at: datetime, capturer_id: str):
-        super().__init__()
+        super().__init__(media_id=media_id)
 
         self.added_at: datetime = added_at
         self.id: str = media_id

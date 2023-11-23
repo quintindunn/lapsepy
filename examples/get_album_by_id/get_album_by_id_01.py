@@ -10,4 +10,4 @@ if __name__ == '__main__':
 
     for media in album.media:
         im = media.load()
-        im.show()
+        media.add_reaction(lapse, "This is a test, sorry.")

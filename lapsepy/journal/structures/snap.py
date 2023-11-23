@@ -5,14 +5,13 @@ Date: 10/22/23
 
 import io
 import logging
-import time
 
 import requests
 
 from datetime import datetime, timedelta
 from PIL import Image
 
-from .core import Media
+from .core import Media, ReactableMedia
 
 import typing
 
@@ -29,23 +28,27 @@ def _dt_from_iso(dt_str: str):
     return datetime.fromisoformat(dt_str)
 
 
-class Snap(Media):
+class Snap(ReactableMedia):
     BASE_URL = "https://image.production.journal-api.lapse.app/image/upload/"
 
     def __init__(self, seen: bool, taken_at: datetime, develops_at: datetime, filtered_id: str | None,
                  original_id: str | None):
+        if filtered_id:
+            mid = filtered_id.split("/filtered_0")[0]
+        elif original_id:
+            mid = original_id.split("/filtered_0")[0]
+        else:
+            raise SyncJournalException("Could not get ID of snap.")
+
+        super().__init__(media_id=mid)
+
         self.seen: bool = seen
         self.taken_at: datetime = taken_at
         self.develops_at: datetime = develops_at
         self.filtered_id: str | None = filtered_id
         self.original_id: str | None = original_id
 
-        if self.filtered_id:
-            self.id = filtered_id.split("/filtered_0")[0]
-        elif self.original_id:
-            self.id = original_id.split("/filtered_0")[0]
-        else:
-            raise SyncJournalException("Could not get ID of snap.")
+        self.id = mid
 
         self.filtered: Image.Image | None = None
         self.original: Image.Image | None = None
@@ -68,12 +71,6 @@ class Snap(Media):
             filtered_id=media['content'].get("filtered"),
             original_id=media['content'].get("original")
         )
-
-    def add_reaction(self, ctx: "Lapse", reaction: str):
-        ctx.add_reaction(msg_id=self.id, reaction=reaction)
-
-    def add_comment(self, ctx: "Lapse", text: str, comment_id: str | None = None):
-        ctx.send_comment(msg_id=self.id, text=text, comment_id=comment_id)
 
     def load_filtered(self, quality: int, fl_keep_iptc: bool) -> Image.Image:
         """
