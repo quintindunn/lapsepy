@@ -59,7 +59,7 @@ class AlbumMedia(ReactableMedia):
         return image
 
     @staticmethod
-    def from_dict(album_data: dict):
+    def from_dict(album_data: dict) -> "AlbumMedia":
         media_data = album_data.get("media", {})
         return AlbumMedia(
             added_at=_parse_iso_time(album_data.get('addedAt', {}).get("isoString")),

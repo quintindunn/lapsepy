@@ -14,6 +14,7 @@ logger = logging.getLogger("lapsepy.journal.structures.py")
 
 if typing.TYPE_CHECKING:
     from lapsepy.lapse import Lapse
+    from lapsepy.journal.structures.album import Album
 
 
 def _dt_from_iso(dt_str: str):
