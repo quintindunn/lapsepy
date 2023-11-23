@@ -27,7 +27,7 @@ from lapsepy.journal.factory.profile_factory import SaveBioGQL, SaveDisplayNameG
 from lapsepy.journal.factory.album_factory import AlbumMediaGQL
 
 from .structures import Snap, Profile, ProfileMusic, FriendsFeed, FriendNode, DarkRoomMedia, ReviewMediaPartition, \
-    SearchUser
+    SearchUser, Album, AlbumMedia
 
 import logging
 
@@ -596,4 +596,16 @@ class Journal:
         if response.get("errors"):
             raise SyncJournalException(f"Error getting album {album_id}")
 
-        print(response)
+        album_data = response.get("data", {}).get("album", {})
+
+        media = []
+
+        for edge in album_data.get("media", {}).get("edges", {}):
+            node = edge['node']
+
+            album_media = AlbumMedia.from_dict(album_data=node)
+            media.append(album_media)
+
+        album = Album(album_id=album_id, media=media)
+
+        return album

@@ -5,7 +5,7 @@ from .core import Media
 import typing
 
 if typing.TYPE_CHECKING:
-    from lapsepy.lapse import Lapse
+    from lapsepy.journal import Journal
     from lapsepy.journal.structures.profile import Profile
 
 
@@ -20,24 +20,23 @@ def _parse_iso_time(iso_str: str) -> datetime:
 
 
 class AlbumMedia(Media):
-    def __init__(self, added_at: datetime, media_id: str, taken_at: datetime, capturer: "Profile"):
+    def __init__(self, added_at: datetime, media_id: str, taken_at: datetime, capturer_id: str):
         super().__init__()
 
         self.added_at: datetime = added_at
         self.id: str = media_id
         self.taken_at: datetime = taken_at
-        self.taken_by: Profile = capturer
+        self.capturer_id: str = capturer_id
 
     @staticmethod
-    def from_dict(ctx: "Lapse", album_data: dict):
+    def from_dict(album_data: dict):
         media_data = album_data.get("media", {})
-        capturer = ctx.get_profile_by_id(media_data.get("takenBy", {}).get("id"))
 
         return AlbumMedia(
             added_at=_parse_iso_time(album_data.get('addedAt', {}).get("isoString")),
             media_id=media_data.get("id", None),
             taken_at=_parse_iso_time(media_data.get("takenAt", {}).get("isoString")),
-            capturer=capturer
+            capturer_id=media_data.get("takenBy", {}).get("id", "")
         )
 
 
