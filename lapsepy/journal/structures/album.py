@@ -2,11 +2,13 @@ from datetime import datetime
 
 from .core import Media
 
-import typing
+from PIL import Image
 
-if typing.TYPE_CHECKING:
-    from lapsepy.journal import Journal
-    from lapsepy.journal.structures.profile import Profile
+import io
+import requests
+import logging
+
+logger = logging.getLogger("lapsepy.journal.structures.album.py")
 
 
 # ToDo: Add this function in a common file instead of copying & pasting.
@@ -20,6 +22,8 @@ def _parse_iso_time(iso_str: str) -> datetime:
 
 
 class AlbumMedia(Media):
+    BASE_URL = "https://image.production.journal-api.lapse.app/image/upload/"
+
     def __init__(self, added_at: datetime, media_id: str, taken_at: datetime, capturer_id: str):
         super().__init__()
 
@@ -27,6 +31,28 @@ class AlbumMedia(Media):
         self.id: str = media_id
         self.taken_at: datetime = taken_at
         self.capturer_id: str = capturer_id
+
+        self.im: Image.Image | None
+
+    def load(self, quality: int = 65, fl_keep_iptc: bool = True) -> Image.Image:
+        """
+        Loads the filtered Snap object's image into memory by making an HTTP request to Lapse's servers.
+        :param quality: Quality of the image (1-100)
+        seek https://cloudinary.com/documentation/transformation_reference#q_quality for more information.
+        :param fl_keep_iptc: Whether to keep copyright related material seek
+        https://cloudinary.com/documentation/transformation_reference#fl_keep_attribution for more information.
+
+        :return: Pillow image.
+        """
+        url = f"{self.BASE_URL}q_{quality}" + (",fl_keep_itc/" if fl_keep_iptc else "/")
+        url += f"{self.id}.jpeg"
+
+        logger.debug(f"Getting image from \"{url}\"")
+
+        request = requests.get(url)
+        bytes_io = io.BytesIO(request.content)
+        image = Image.open(bytes_io)
+        return image
 
     @staticmethod
     def from_dict(album_data: dict):

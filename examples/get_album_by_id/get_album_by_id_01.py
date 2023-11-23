@@ -8,4 +8,6 @@ if __name__ == '__main__':
 
     album = lapse.get_album_by_id(album_id, last=10)
 
-    print(album)
+    for media in album.media:
+        im = media.load()
+        im.show()
