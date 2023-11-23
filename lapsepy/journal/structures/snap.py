@@ -182,7 +182,7 @@ class DarkRoomMedia(Media):
         partition = self.review(iso_string=iso_string)
         return ctx.review_snaps(shared=[partition])
 
-    def load(self, quality: int = 100, fl_keep_iptc: bool = True):
+    def load(self, quality: int = 65, fl_keep_iptc: bool = True):
         url = f"{self.BASE_URL}q_{quality}" + (",fl_keep_itc/" if fl_keep_iptc else "/")
         url += f"{self.media_id}.jpeg"
 
