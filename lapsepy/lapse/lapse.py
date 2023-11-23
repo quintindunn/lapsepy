@@ -298,3 +298,12 @@ class Lapse:
             user = user.user_id
 
         return self.journal.unblock_user(user_id=user)
+
+    def get_album_by_id(self, album_id: str, last: int):
+        """
+        Gets an album by its ID.
+        :param album_id: ID of the album
+        :param last: How many items to query from the album.
+        :return:
+        """
+        return self.journal.get_album_by_id(album_id=album_id, last=last)

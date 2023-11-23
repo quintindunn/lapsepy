@@ -24,6 +24,8 @@ from .factory.media_factory import ImageUploadURLGQL, CreateMediaGQL, SendInstan
 from lapsepy.journal.factory.profile_factory import SaveBioGQL, SaveDisplayNameGQL, SaveUsernameGQL, SaveEmojisGQL, \
     SaveDOBGQL, CurrentUserGQL, SaveMusicGQL, BlockProfileGQL, UnblockProfileGQL
 
+from lapsepy.journal.factory.album_factory import AlbumMediaGQL
+
 from .structures import Snap, Profile, ProfileMusic, FriendsFeed, FriendNode, DarkRoomMedia, ReviewMediaPartition, \
     SearchUser
 
@@ -579,3 +581,19 @@ class Journal:
 
         if not response.get("data", {}).get("unblockProfile", {}).get("success"):
             raise SyncJournalException(f"Error unblocking user {user_id}.")
+
+    def get_album_by_id(self, album_id: str, last: int):
+        """
+        Gets an album by its ID.
+        :param album_id: ID of the album
+        :param last: How many items to query from the album.
+        :return:
+        """
+        query = AlbumMediaGQL(album_id=album_id, last=last).to_dict()
+
+        response = self._sync_journal_call(query)
+
+        if response.get("errors"):
+            raise SyncJournalException(f"Error getting album {album_id}")
+
+        print(response)
