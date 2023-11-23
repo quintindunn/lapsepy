@@ -6,7 +6,7 @@ Date: 10/22/23
 import io
 import uuid
 
-from .common.exceptions import sync_journal_exception_router, SyncJournalException
+from .common.exceptions import sync_journal_exception_router, SyncJournalException, AuthTokenExpired
 
 from uuid import uuid4
 from datetime import datetime
@@ -44,11 +44,12 @@ def parse_iso_time(iso_str: str) -> datetime:
 
 
 class Journal:
-    def __init__(self, authorization: str):
+    def __init__(self, authorization: str, refresher):
         self.request_url = "https://sync-service.production.journal-api.lapse.app/graphql"
         self.base_headers = {
             "authorization": authorization
         }
+        self.refresher = refresher
 
     def _sync_journal_call(self, query: dict) -> dict:
         """
@@ -58,8 +59,12 @@ class Journal:
         """
 
         logger.debug(f"Making request to {self.request_url}")
-
-        request = requests.post(self.request_url, headers=self.base_headers, json=query)
+        try:
+            request = requests.post(self.request_url, headers=self.base_headers, json=query)
+        except AuthTokenExpired:
+            self.refresher()
+            logger.debug("Auth token expired, retrying.")
+            return self._sync_journal_call(query=query)
         try:
             request.raise_for_status()
         except requests.exceptions.HTTPError:

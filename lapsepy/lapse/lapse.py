@@ -19,7 +19,7 @@ class Lapse:
     def __init__(self, refresh_token):
         self.refresh_token = refresh_token
         self.auth_token: str | None = None
-        self.journal = Journal(authorization=self.auth_token)
+        self.journal = Journal(authorization=self.auth_token, refresher=self._refresh_auth_token)
         self._refresh_auth_token()
 
     def _refresh_auth_token(self) -> None:
