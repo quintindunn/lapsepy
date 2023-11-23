@@ -39,10 +39,18 @@ class AlbumMedia(Media):
             capturer_id=media_data.get("takenBy", {}).get("id", "")
         )
 
+    def __str__(self):
+        return f"<Lapse AlbumMedia id=\"{self.id}\" capturer={self.capturer_id}>"
+
+    __repr__ = __str__
+
 
 class Album:
     def __init__(self, album_id, media: list[AlbumMedia]):
         self.album_id = album_id
         self.media = media
 
+    def __str__(self):
+        return f"<Lapse album id=\"{self.album_id}\" size={len(self.media)}>"
 
+    __repr__ = __str__
