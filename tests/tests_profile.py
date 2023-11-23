@@ -60,3 +60,10 @@ class TestKudos(TestCase):
         uid = test_lapse_profile.user_id
         lapse.send_kudos(uid)
         lapse.send_kudos(uid)
+
+
+class TestBlock(TestCase):
+    def test_block_unblock(self):
+        uid = test_lapse_profile.user_id
+        lapse.block_profile(uid)
+        lapse.unblock_profile(uid)

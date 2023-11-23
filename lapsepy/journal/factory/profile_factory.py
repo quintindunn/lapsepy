@@ -157,3 +157,37 @@ class SaveMusicGQL(BaseGQL):
             "songTitle": self.song_title,
             "songUrl": self.song_url
         }
+
+
+class BlockProfileGQL(BaseGQL):
+    def __init__(self, user_id: str):
+        super().__init__("BlockProfileGraphQLMutation",
+                         "mutation BlockProfileGraphQLMutation($input: BlockProfileInput!) "
+                         "{ blockProfile(input: $input) { __typename success } }")
+        self.user_id = user_id
+
+        self.variables = {}
+
+        self._render_variables()
+
+    def _render_variables(self):
+        self.variables['input'] = {
+            "id": self.user_id
+        }
+
+
+class UnblockProfileGQL(BaseGQL):
+    def __init__(self, user_id: str):
+        super().__init__("UnblockProfileGraphQLMutation",
+                         "mutation UnblockProfileGraphQLMutation($input: UnblockProfileInput!) "
+                         "{ unblockProfile(input: $input) { __typename success } }")
+        self.user_id = user_id
+
+        self.variables = {}
+
+        self._render_variables()
+
+    def _render_variables(self):
+        self.variables['input'] = {
+            "id": self.user_id
+        }

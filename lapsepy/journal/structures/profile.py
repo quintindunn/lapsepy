@@ -14,6 +14,7 @@ logger = logging.getLogger("lapsepy.journal.structures.py")
 
 if typing.TYPE_CHECKING:
     from lapsepy.lapse import Lapse
+    from lapsepy.journal.structures.album import Album
 
 
 def _dt_from_iso(dt_str: str):
@@ -24,7 +25,7 @@ class Profile:
     def __init__(self, user_id: str, username: str, display_name: str, profile_photo_name: str, bio: str | None,
                  emojis: list[str], is_friends: bool, blocked_me: bool, kudos: int, tags: list[dict],
                  hashed_phone_number: str, is_blocked: bool = False, friends: list["Profile"] = None,
-                 profile_music: "ProfileMusic" = None):
+                 profile_music: "ProfileMusic" = None, albums: list["Album"] | None = None):
         if friends is None:
             friends = []
 
@@ -41,6 +42,7 @@ class Profile:
         self.username: str = username
         self.media: list[Snap] = []
         self.is_blocked = is_blocked
+        self.albums = albums
 
         self.friends: list["Profile"] = friends
         self.profile_music = profile_music
@@ -85,7 +87,7 @@ class Profile:
             profile_music=profile_music
         )
 
-    def load_profile_picture(self, quality: int = 100, height: int | None = None) -> Image.Image:
+    def load_profile_picture(self, quality: int = 65, height: int | None = None) -> Image.Image:
         """
         Loads the Profile's profile picture into memory by making an HTTP request to Lapse's servers.
         :param quality: Quality of the image (1-100)
@@ -118,6 +120,12 @@ class Profile:
 
     def send_kudos(self, ctx: "Lapse"):
         return ctx.send_kudos(user=self)
+
+    def block(self, ctx: "Lapse"):
+        return ctx.block_profile(user=self)
+
+    def unblock(self, ctx: "Lapse"):
+        return ctx.unblock_profile(user=self)
 
     def __str__(self):
         return f"<Lapse profile \"{self.username}\" {self.user_id}>"

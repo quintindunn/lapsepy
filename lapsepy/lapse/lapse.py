@@ -7,7 +7,7 @@ from datetime import datetime
 
 from lapsepy.auth.refresher import refresh
 from lapsepy.journal.journal import Journal
-from lapsepy.journal.common.exceptions import AuthTokenExpired, UserNotFoundException
+from lapsepy.journal.common.exceptions import UserNotFoundException
 from lapsepy.journal.structures import Profile, DarkRoomMedia, ReviewMediaPartition
 
 import logging
@@ -19,7 +19,7 @@ class Lapse:
     def __init__(self, refresh_token):
         self.refresh_token = refresh_token
         self.auth_token: str | None = None
-        self.journal = Journal(authorization=self.auth_token)
+        self.journal = Journal(authorization=self.auth_token, refresher=self._refresh_auth_token)
         self._refresh_auth_token()
 
     def _refresh_auth_token(self) -> None:
@@ -55,17 +55,10 @@ class Lapse:
         :param timezone: Timezone that lapse thinks you're using.
         :return: None
         """
-        try:
-            return self.journal.upload_photo(im=im, develop_in=develop_in, file_uuid=file_uuid, taken_at=taken_at,
-                                             color_temperature=color_temperature, exposure_value=exposure_value,
-                                             flash=flash,
-                                             timezone=timezone)
-        except AuthTokenExpired:
-            logger.debug("Authentication token expired.")
-            return self.journal.upload_photo(im=im, develop_in=develop_in, file_uuid=file_uuid, taken_at=taken_at,
-                                             color_temperature=color_temperature, exposure_value=exposure_value,
-                                             flash=flash,
-                                             timezone=timezone)
+        return self.journal.upload_photo(im=im, develop_in=develop_in, file_uuid=file_uuid, taken_at=taken_at,
+                                         color_temperature=color_temperature, exposure_value=exposure_value,
+                                         flash=flash,
+                                         timezone=timezone)
 
     def query_darkroom(self) -> list[DarkRoomMedia]:
         """
@@ -140,11 +133,7 @@ class Lapse:
         :param count: How many collection to grab.
         :return: A list of profiles
         """
-        try:
-            return self.journal.get_friends_feed(count=count)
-        except AuthTokenExpired:
-            logger.debug("Authentication token expired.")
-            return self.journal.get_friends_feed(count=count)
+        return self.journal.get_friends_feed(count=count)
 
     def get_profile_by_id(self, user_id: str, album_limit: int = 6, friends_limit: int = 10) -> Profile:
         """
@@ -276,3 +265,34 @@ class Lapse:
             return search_results[0].to_profile(self, album_limit=album_limit, friends_limit=friends_limit)
 
         raise UserNotFoundException(f"Could not find user with username: \"{username}\"")
+
+    def block_profile(self, user: str | Profile):
+        """
+        Blocks a user from your Lapse account
+        :param user: ID / Object of user to block.
+        :return:
+        """
+        if isinstance(user, Profile):
+            user = user.user_id
+
+        return self.journal.block_user(user_id=user)
+
+    def unblock_profile(self, user: str | Profile):
+        """
+        Unblocks a user from your Lapse account
+        :param user: ID / Object of user to unblock.
+        :return:
+        """
+        if isinstance(user, Profile):
+            user = user.user_id
+
+        return self.journal.unblock_user(user_id=user)
+
+    def get_album_by_id(self, album_id: str, last: int):
+        """
+        Gets an album by its ID.
+        :param album_id: ID of the album
+        :param last: How many items to query from the album.
+        :return:
+        """
+        return self.journal.get_album_by_id(album_id=album_id, last=last)

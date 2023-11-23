@@ -6,7 +6,7 @@ Date: 10/22/23
 import io
 import uuid
 
-from .common.exceptions import sync_journal_exception_router, SyncJournalException
+from .common.exceptions import sync_journal_exception_router, SyncJournalException, AuthTokenExpired
 
 from uuid import uuid4
 from datetime import datetime
@@ -22,10 +22,12 @@ from .factory.media_factory import ImageUploadURLGQL, CreateMediaGQL, SendInstan
     DarkroomGQL
 
 from lapsepy.journal.factory.profile_factory import SaveBioGQL, SaveDisplayNameGQL, SaveUsernameGQL, SaveEmojisGQL, \
-    SaveDOBGQL, CurrentUserGQL, SaveMusicGQL
+    SaveDOBGQL, CurrentUserGQL, SaveMusicGQL, BlockProfileGQL, UnblockProfileGQL
+
+from lapsepy.journal.factory.album_factory import AlbumMediaGQL
 
 from .structures import Snap, Profile, ProfileMusic, FriendsFeed, FriendNode, DarkRoomMedia, ReviewMediaPartition, \
-    SearchUser
+    SearchUser, Album, AlbumMedia
 
 import logging
 
@@ -42,11 +44,12 @@ def parse_iso_time(iso_str: str) -> datetime:
 
 
 class Journal:
-    def __init__(self, authorization: str):
+    def __init__(self, authorization: str, refresher):
         self.request_url = "https://sync-service.production.journal-api.lapse.app/graphql"
         self.base_headers = {
             "authorization": authorization
         }
+        self.refresher = refresher
 
     def _sync_journal_call(self, query: dict) -> dict:
         """
@@ -56,8 +59,12 @@ class Journal:
         """
 
         logger.debug(f"Making request to {self.request_url}")
-
-        request = requests.post(self.request_url, headers=self.base_headers, json=query)
+        try:
+            request = requests.post(self.request_url, headers=self.base_headers, json=query)
+        except AuthTokenExpired:
+            self.refresher()
+            logger.debug("Auth token expired, retrying.")
+            return self._sync_journal_call(query=query)
         try:
             request.raise_for_status()
         except requests.exceptions.HTTPError:
@@ -360,7 +367,7 @@ class Journal:
             else:
                 profile_music = None
 
-            return Profile(
+            usr_profile = Profile(
                 bio=profile_data.get('bio'),
                 blocked_me=profile_data.get('blockedMe'),
                 display_name=profile_data.get('displayName'),
@@ -375,6 +382,38 @@ class Journal:
                 hashed_phone_number=profile_data.get("hashedPhoneNumber"),
                 profile_music=profile_music
             )
+
+            album_data = profile_data.get("albums", {}).get("edges", {})
+
+            albums = []
+
+            for album_edge in album_data:
+                album_node = album_edge['node']
+
+                album_media = []
+                for media_edge in album_node.get("media", {}).get("edges", {}):
+                    node = media_edge.get("node")
+                    # added_at: datetime, media_id: str, taken_at: datetime, capturer_id: str
+                    album_media.append(AlbumMedia(
+                        added_at=parse_iso_time(node.get("addedAt", {}).get("isoString")),
+                        taken_at=parse_iso_time(node.get("addedAt", {}).get("isoString")),
+                        media_id=node.get("media", {}).get("id"),
+                        capturer_id=usr_profile.user_id
+                    ))
+
+                albums.append(Album(
+                    album_id=album_node.get("id"),
+                    media=album_media,
+                    album_name=album_node.get("name"),
+                    visibility=album_node.get("visibility"),
+                    created_at=parse_iso_time(album_node.get("createdAt", {}).get("isoString")),
+                    updated_at=parse_iso_time(album_node.get("updatedAt", {}).get("isoString")),
+                    owner=usr_profile
+                ))
+
+            usr_profile.albums = albums
+
+            return usr_profile
 
         profile = generate_profile_object(pd)
 
@@ -555,3 +594,55 @@ class Journal:
             users.append(search_user)
 
         return users
+
+    def block_user(self, user_id: str):
+        """
+        Send a user blocking API call
+        :param user_id: ID of the user to block
+        :return:
+        """
+        query = BlockProfileGQL(user_id=user_id).to_dict()
+        response = self._sync_journal_call(query)
+
+        if not response.get("data", {}).get("blockProfile", {}).get("success"):
+            raise SyncJournalException(f"Error blocking user {user_id}.")
+
+    def unblock_user(self, user_id: str):
+        """
+        Send a user unblocking API call
+        :param user_id: ID of the user to unblock
+        :return:
+        """
+        query = UnblockProfileGQL(user_id=user_id).to_dict()
+        response = self._sync_journal_call(query)
+
+        if not response.get("data", {}).get("unblockProfile", {}).get("success"):
+            raise SyncJournalException(f"Error unblocking user {user_id}.")
+
+    def get_album_by_id(self, album_id: str, last: int):
+        """
+        Gets an album by its ID.
+        :param album_id: ID of the album
+        :param last: How many items to query from the album.
+        :return:
+        """
+        query = AlbumMediaGQL(album_id=album_id, last=last).to_dict()
+
+        response = self._sync_journal_call(query)
+
+        if response.get("errors"):
+            raise SyncJournalException(f"Error getting album {album_id}")
+
+        album_data = response.get("data", {}).get("album", {})
+
+        media = []
+
+        for edge in album_data.get("media", {}).get("edges", {}):
+            node = edge['node']
+
+            album_media = AlbumMedia.from_dict(album_data=node)
+            media.append(album_media)
+
+        album = Album(album_id=album_id, media=media)
+
+        return album
