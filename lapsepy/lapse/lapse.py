@@ -7,7 +7,7 @@ from datetime import datetime
 
 from lapsepy.auth.refresher import refresh
 from lapsepy.journal.journal import Journal
-from lapsepy.journal.common.exceptions import AuthTokenExpired, UserNotFoundException
+from lapsepy.journal.common.exceptions import UserNotFoundException
 from lapsepy.journal.structures import Profile, DarkRoomMedia, ReviewMediaPartition
 
 import logging
@@ -55,17 +55,10 @@ class Lapse:
         :param timezone: Timezone that lapse thinks you're using.
         :return: None
         """
-        try:
-            return self.journal.upload_photo(im=im, develop_in=develop_in, file_uuid=file_uuid, taken_at=taken_at,
-                                             color_temperature=color_temperature, exposure_value=exposure_value,
-                                             flash=flash,
-                                             timezone=timezone)
-        except AuthTokenExpired:
-            logger.debug("Authentication token expired.")
-            return self.journal.upload_photo(im=im, develop_in=develop_in, file_uuid=file_uuid, taken_at=taken_at,
-                                             color_temperature=color_temperature, exposure_value=exposure_value,
-                                             flash=flash,
-                                             timezone=timezone)
+        return self.journal.upload_photo(im=im, develop_in=develop_in, file_uuid=file_uuid, taken_at=taken_at,
+                                         color_temperature=color_temperature, exposure_value=exposure_value,
+                                         flash=flash,
+                                         timezone=timezone)
 
     def query_darkroom(self) -> list[DarkRoomMedia]:
         """
@@ -140,11 +133,7 @@ class Lapse:
         :param count: How many collection to grab.
         :return: A list of profiles
         """
-        try:
-            return self.journal.get_friends_feed(count=count)
-        except AuthTokenExpired:
-            logger.debug("Authentication token expired.")
-            return self.journal.get_friends_feed(count=count)
+        return self.journal.get_friends_feed(count=count)
 
     def get_profile_by_id(self, user_id: str, album_limit: int = 6, friends_limit: int = 10) -> Profile:
         """
