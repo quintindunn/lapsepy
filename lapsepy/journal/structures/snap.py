@@ -135,6 +135,8 @@ class Snap(ReactableMedia):
 
 
 class DarkRoomMedia(Media):
+    BASE_URL = "https://image.production.journal-api.lapse.app/image/upload/"
+
     def __init__(self, develop_in: int | str, media_id: str, taken_at: datetime, im: Image.Image | None = None):
 
         self.im: None | Image.Image = im
@@ -146,6 +148,8 @@ class DarkRoomMedia(Media):
 
         self.media_id: str = media_id
         self.taken_at: datetime = taken_at
+
+        self.im: Image.Image | None = None
 
         self._developed: bool = False
 
@@ -174,6 +178,18 @@ class DarkRoomMedia(Media):
     def share(self, ctx: "Lapse", iso_string: str | None | datetime = None):
         partition = self.review(iso_string=iso_string)
         return ctx.review_snaps(shared=[partition])
+
+    def load(self, quality: int = 65, fl_keep_iptc: bool = True):
+        url = f"{self.BASE_URL}q_{quality}" + (",fl_keep_itc/" if fl_keep_iptc else "/")
+        url += f"{self.media_id}.jpeg"
+
+        logger.debug(f"Getting image from \"{url}\"")
+
+        request = requests.get(url)
+        bytes_io = io.BytesIO(request.content)
+        image = Image.open(bytes_io)
+        self.im = image
+        return image
 
 
 class ReviewMediaPartition:

@@ -4,3 +4,4 @@ lapsepy.egg-info
 dist
 build
 examples/get_friends_feed/out
+examples/darkroom_query/out
