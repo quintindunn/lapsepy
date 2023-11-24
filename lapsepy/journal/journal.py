@@ -51,7 +51,7 @@ class Journal:
         }
         self.refresher = refresher
 
-    def _sync_journal_call(self, query: dict) -> dict:
+    def _sync_journal_call(self, query: dict, reauth=True) -> dict:
         """
         Makes an API call to "https://sync-service.production.journal-api.lapse.app/graphql" with an arbitrary query.
         :param query: The query to send to the API.
@@ -59,22 +59,35 @@ class Journal:
         """
 
         logger.debug(f"Making request to {self.request_url}")
-        try:
-            request = requests.post(self.request_url, headers=self.base_headers, json=query)
-        except AuthTokenExpired:
-            self.refresher()
-            logger.debug("Auth token expired, retrying.")
-            return self._sync_journal_call(query=query)
+        request = requests.post(self.request_url, headers=self.base_headers, json=query)
+
+        # Check for exceptions raised while making request, none of these are handled.
         try:
             request.raise_for_status()
         except requests.exceptions.HTTPError:
             raise requests.exceptions.HTTPError(request.text)
 
+        # Check for errors in response
         errors = request.json().get("errors", [])
-        if len(errors) > 0:
-            logger.error(f"Got error from request to {self.request_url} with query {query}.")
-            raise sync_journal_exception_router(error=errors[0])
 
+        if len(errors) > 0:
+            # There is an error, route it and raise the appropriate error.
+            logger.error(f"Got error from request to {self.request_url} with query {query}.")
+
+            try:
+                raise sync_journal_exception_router(error=errors[0])
+            except AuthTokenExpired:
+                # If the error is related to the AuthToken being expired, retry once.
+                if reauth:
+                    self.refresher()
+
+                    logger.debug("Auth token expired, retrying.")
+                    return self._sync_journal_call(query=query, reauth=False)
+                else:
+                    # Already retried it once, raise a real exception that won't be automatically caught.
+                    raise sync_journal_exception_router(error=errors[0])
+
+        # Return the data from the API call.
         return request.json()
 
     @staticmethod
