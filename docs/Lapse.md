@@ -69,6 +69,13 @@ Search for a user using the Lapse API
 * `first: int = 10` - The first n results to return
 * Returns a list[[SearchUser](#)]
 
+#### Lapse.block_profile
+Blocks a lapse profile
+```python3
+    Lapse.block_profile(user: str | Profile)
+```
+* `user: str | Profile` - The uuid or a [Profile](#) object of the user to block
+
 #### Lapse.get_friends_feed
 Gets your friends feed from Lapse.
 ```python3
