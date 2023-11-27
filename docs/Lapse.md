@@ -58,7 +58,16 @@ Updates your Lapse profile's username to the text specified.
 * `username: str` - The username you'd like to set for your account. It seems to conform to the same rules that are present on the app.
 
 
-### Friends
+### Friends/Users
+
+#### Lapse.search_for_user
+Search for a user using the Lapse API
+```python3
+    Lapse.search_for_user(term: str, first: int = 10)
+```
+* `term: str` - The term to search
+* `first: int = 10` - The first n results to return
+* Returns a list[[SearchUser](#)]
 
 #### Lapse.get_friends_feed
 Gets your friends feed from Lapse.
