@@ -67,6 +67,13 @@ Gets a Lapse profile object by the user's ID.
 * `friends_limit: int = 10` - The maximum amount of friends to return. The default is `10`, the same as the Lapse app.
 * Returns a [Profile](#) object.
 
+#### Lapse.get_current_user
+Gets the current Lapse account
+```python3
+    Lapse.get_current_user()
+```
+* Returns a [Profile](#) object of the current user.
+
 #### Lapse.send_kudos
 Sends kudos (on the app known as vibes) to a user.
 ```python3
