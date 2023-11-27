@@ -49,3 +49,10 @@ Sends an instant to a Lapse profile
 * `im_id: str | None = None` - The uuid of the actual image/message, for the most part you can leave this as None, Lapsepy will automatically generate an uuid for you.
 * `caption: str | None` - The caption of the instant.
 * `time_limit: int = 10` - The time limit for the image.
+
+#### Profile.send_kudos(ctx: Lapse)
+Sends kudos (a vibe) to the Profile
+```python3
+    Profile.send_kudos(ctx: "Lapse")
+```
+* `ctx: Lapse` - Your [Lapse](./Lapse.md) object, the vibe will be sent from this account.
