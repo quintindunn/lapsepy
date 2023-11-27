@@ -63,3 +63,10 @@ Blocks the Profile
     Profile.block(ctx: "Lapse")
 ```
 * `ctx: Lapse` - Your [Lapse](./Lapse.md) object, the Profile will be blocked from this account.
+
+#### Profile.unblock(ctx: Lapse)
+Unblocks the Profile
+```python3
+    Profile.unblock(ctx: "Lapse")
+```
+* `ctx: Lapse` - Your [Lapse](./Lapse.md) object, the Profile will be unblocked from this account.
