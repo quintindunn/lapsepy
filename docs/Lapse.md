@@ -76,6 +76,13 @@ Blocks a lapse profile
 ```
 * `user: str | Profile` - The uuid or a [Profile](#) object of the user to block
 
+#### Lapse.unblock_profile
+Unblocks a lapse profile.
+```python3
+    Lapse.unblock_profile(user: str | Profile)
+```
+* `user: str | Profile` - The uuid or a [Profile](#) object of the user to unblock.
+
 #### Lapse.get_friends_feed
 Gets your friends feed from Lapse.
 ```python3
