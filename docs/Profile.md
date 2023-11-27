@@ -25,3 +25,15 @@ The Profile class for Lapse profiles.
 * `friends: list[Profile]` - List of Profile objects that the user is friends with. If none, it gets initialized with a empty list.
 * `profile_music: ProfileMusic` - The profile's music as a [ProfileMusic](#) object.
 * `albums: list["Album"] | None` - The albums the account has. 
+
+
+### Profile picture
+
+#### Profile.load_profile_picture
+Loads the accounts profile picture from Lapse's API.
+```python3
+    Profile.load_profile_picture(quality: int = 65, height: int | None = None)
+```
+* `quality: int = 65` - The quality of the image (1-100), Lapse uses 65 which should be sufficient, sometimes the server will return a 500 (internal server error). If this happens try lowering the quality..
+* `height: int | None = None` - the height of the image to return, leave this to None to get the original image size. The Lapse servers will scale it down maintaining its aspect ratio.
+* Returns a Pillow Image object.
