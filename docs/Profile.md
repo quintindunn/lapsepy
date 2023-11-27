@@ -27,7 +27,7 @@ The Profile class for Lapse profiles.
 * `albums: list["Album"] | None` - The albums the account has. 
 
 
-### Profile picture
+### Pictures
 
 #### Profile.load_profile_picture
 Loads the accounts profile picture from Lapse's API.
@@ -37,3 +37,15 @@ Loads the accounts profile picture from Lapse's API.
 * `quality: int = 65` - The quality of the image (1-100), Lapse uses 65 which should be sufficient, sometimes the server will return a 500 (internal server error). If this happens try lowering the quality..
 * `height: int | None = None` - the height of the image to return, leave this to None to get the original image size. The Lapse servers will scale it down maintaining its aspect ratio.
 * Returns a Pillow Image object.
+
+#### Profile.send_instant(ctx: Lapse, im: Image, file_uuid: str | None = None, im_id: str | None = None, caption: str | None = None, time_limit: int = 10)
+Sends an instant to a Lapse profile
+```python3
+    Profile.send_instant(ctx: "Lapse", im: Image, file_uuid: str | None = None, im_id: str | None = None, caption: str | None = None, time_limit: int = 10)
+```
+* `ctx: Lapse` - Your [Lapse](./Lapse.md) object, the instant will be sent from this account.
+* `im: Image` - Pillow image that you want to send.
+* `file_uuid: str | None = None` - The uuid of the file of the image to send, for the most part you can leave this as None, Lapsepy will automatically generate an uuid for you.
+* `im_id: str | None = None` - The uuid of the actual image/message, for the most part you can leave this as None, Lapsepy will automatically generate an uuid for you.
+* `caption: str | None` - The caption of the instant.
+* `time_limit: int = 10` - The time limit for the image.
