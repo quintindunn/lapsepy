@@ -2,7 +2,7 @@
 The Profile class for Lapse profiles.
 <hr>
 
-### Profile
+### Profile.Profile
 ```python3
     Profile(user_id: str, username: str, display_name: str, profile_photo_name: str, bio: str | None,
                  emojis: list[str], is_friends: bool, blocked_me: bool, kudos: int, tags: list[dict],
@@ -22,7 +22,7 @@ The Profile class for Lapse profiles.
 * `tags: list[dict]` - The tags of the account, these consist of the age, star sign, etc.
 * `hashed_phone_number: str` - The hashed phone number of the account.
 * `is_blocked: bool = False` - Whether the account is blocked.
-* `friends: list[Profile]` - List of Profile objects that the user is friends with. If none, it gets initialized with a empty list.
+* `friends: list[Profile]` - List of Profile objects that the user is friends with. If none, it gets initialized with an empty list.
 * `profile_music: ProfileMusic` - The profile's music as a [ProfileMusic](#) object.
 * `albums: list["Album"] | None` - The albums the account has. 
 
