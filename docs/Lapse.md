@@ -11,15 +11,15 @@ The Lapse class is the core class for Lapsepy, it covers all the heavylifting fo
 ### Profile Modification:
 
 #### Lapse.update_music
-Update your Lapse profile's music
+Update your Lapse profile's music.
 ```python3
     Lapse.update_music(artist: str, artwork_url: str, duration: int, song_title: str, song_url: str)
 ```
-* `artist: str` - The name of the Artist for the song
-* `artwork_url: str` - URL to a jpeg for artwork of the song
-* `duration: int` - Length of the song in seconds
-* `song_title: str` - Title of the song
-* `song_url: str` - URL that leads to the song MP3
+* `artist: str` - The name of the Artist for the song.
+* `artwork_url: str` - URL to a jpeg for artwork of the song.
+* `duration: int` - Length of the song in seconds.
+* `song_title: str` - Title of the song.
+* `song_url: str` - URL that leads to the song MP3.
 
 #### Lapse.update_bio
 Updates your Lapse profile's bio to the text specified.
@@ -61,20 +61,20 @@ Updates your Lapse profile's username to the text specified.
 ### Friends/Users
 
 #### Lapse.search_for_user
-Search for a user using the Lapse API
+Search for a user using the Lapse API.
 ```python3
     Lapse.search_for_user(term: str, first: int = 10)
 ```
-* `term: str` - The term to search
-* `first: int = 10` - The first n results to return
+* `term: str` - The term to search.
+* `first: int = 10` - The first n results to return.
 * Returns a list[[SearchUser](#)]
 
 #### Lapse.block_profile
-Blocks a lapse profile
+Blocks a lapse profile.
 ```python3
     Lapse.block_profile(user: str | Profile)
 ```
-* `user: str | Profile` - The uuid or a [Profile](#) object of the user to block
+* `user: str | Profile` - The uuid or a [Profile](#) object of the user to block.
 
 #### Lapse.unblock_profile
 Unblocks a lapse profile.
@@ -110,7 +110,7 @@ Gets a Lapse album by the id of the album.
 * `last: int` - How many items to query from the album.
 
 #### Lapse.get_current_user
-Gets the current Lapse account
+Gets the current Lapse account.
 ```python3
     Lapse.get_current_user()
 ```
