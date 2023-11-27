@@ -70,3 +70,29 @@ Unblocks the Profile
     Profile.unblock(ctx: "Lapse")
 ```
 * `ctx: Lapse` - Your [Lapse](./Lapse.md) object, the Profile will be unblocked from this account.
+
+# lapsepy.journal.structures.profile.ProfileMusic
+The ProfileMusic class for Lapse profile music.
+<hr>
+
+### Profile.ProfileMusic
+```python3
+    ProfileMusic(artist: str, artwork_url: str, duration: int, song_title: str, song_url: str)
+```
+* `artist: str` - The name of the Artist for the song.
+* `artwork_url: str` - URL to a jpeg for artwork of the song.
+* `duration: int` - Length of the song in seconds.
+* `song_title: str` - Title of the song.
+* `song_url: str` - URL that leads to the song MP3.
+
+##### Attributes:
+* `ProfileMusic.song: None | bytes = None` - Once loaded using ProfileMusic.load this will contain the bytes of the MP3 file for the song. 
+* `ProfileMusic.artwork: None| Image.Image = None` - Once loaded using ProfileMusic.load this contains a Pillow Image object of the artwork.
+
+### Loading
+
+#### ProfileMusic.load
+Loads the profile music
+```python3
+    ProfileMusic.load()
+```
