@@ -101,6 +101,14 @@ Gets a Lapse profile object by the user's ID.
 * `friends_limit: int = 10` - The maximum amount of friends to return. The default is `10`, the same as the Lapse app.
 * Returns a [Profile](#) object.
 
+#### Lapse.get_album_by_id
+Gets a Lapse album by the id of the album.
+```python3
+    Lapse.get_album_by_id(album_id: str, last: int)
+```
+* `album_id: str` - The id of the album to get.
+* `last: int` - How many items to query from the album.
+
 #### Lapse.get_current_user
 Gets the current Lapse account
 ```python3
