@@ -74,14 +74,14 @@ Blocks a lapse profile.
 ```python3
     Lapse.block_profile(user: str | Profile)
 ```
-* `user: str | Profile` - The uuid or a [Profile](#) object of the user to block.
+* `user: str | Profile` - The uuid or a [Profile](./Profile.md) object of the user to block.
 
 #### Lapse.unblock_profile
 Unblocks a lapse profile.
 ```python3
     Lapse.unblock_profile(user: str | Profile)
 ```
-* `user: str | Profile` - The uuid or a [Profile](#) object of the user to unblock.
+* `user: str | Profile` - The uuid or a [Profile](./Profile.md) object of the user to unblock.
 
 #### Lapse.get_friends_feed
 Gets your friends feed from Lapse.
@@ -99,7 +99,7 @@ Gets a Lapse profile object by the user's ID.
 * `user_id: str` - The ID of the user's profile that you would like to retrieve.
 * `album_limit: int = 6` - The maximum amount of albums to retrieve from the profile. The default is `6`, the same as the Lapse app.
 * `friends_limit: int = 10` - The maximum amount of friends to return. The default is `10`, the same as the Lapse app.
-* Returns a [Profile](#) object.
+* Returns a [Profile](./Profile.md) object.
 
 #### Lapse.get_album_by_id
 Gets a Lapse album by the id of the album.
@@ -114,14 +114,14 @@ Gets the current Lapse account.
 ```python3
     Lapse.get_current_user()
 ```
-* Returns a [Profile](#) object of the current user.
+* Returns a [Profile](./Profile.md) object of the current user.
 
 #### Lapse.send_kudos
 Sends kudos (on the app known as vibes) to a user.
 ```python3
     Lapse.send_kudos(user: str | Profile)
 ```
-* `user: str | Profile` - The user to send the kudos to, you can either pass through a string containing the user's ID, or you can pass through a [Profile](#) object. There is currently no way to see how many vibes you have left, though if it fails it will send a generic [SyncJournalException](#).
+* `user: str | Profile` - The user to send the kudos to, you can either pass through a string containing the user's ID, or you can pass through a [Profile](./Profile.md) object. There is currently no way to see how many vibes you have left, though if it fails it will send a generic [SyncJournalException](#).
 
 #### Lapse.upload_instant
 Uploads an instant and sends it to a user.
@@ -130,7 +130,7 @@ Uploads an instant and sends it to a user.
                        caption: str | None = None, time_limit: int = 10)
 ```
 * `im: Image` - A Pillow image object of the image you would like to send as an instant.
-* `user: str | Profile` - The user to send the instant to, you can either pass through a string containing the user's ID, or you can pass through a [Profile](#) object.
+* `user: str | Profile` - The user to send the instant to, you can either pass through a string containing the user's ID, or you can pass through a [Profile](./Profile.md) object.
 * `file_uuid: str | None = None` - Server-side UUID of the file you want to upload, there is no real need to change this from the default of None, as when it is None it will automatically generate in the same format that is used on the Lapse app.
 * `im_id: str | None = None` - Server-side UUID that represents the image, there is no real need to change this from the default of None, as when it is None it will automatically generate in the same format that is used on the Lapse app.
 * `caption: str | None = None` - Caption of the image to be displayed.
