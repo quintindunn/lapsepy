@@ -56,3 +56,10 @@ Sends kudos (a vibe) to the Profile
     Profile.send_kudos(ctx: "Lapse")
 ```
 * `ctx: Lapse` - Your [Lapse](./Lapse.md) object, the vibe will be sent from this account.
+
+#### Profile.block(ctx: Lapse)
+Blocks the Profile
+```python3
+    Profile.block(ctx: "Lapse")
+```
+* `ctx: Lapse` - Your [Lapse](./Lapse.md) object, the Profile will be blocked from this account.
