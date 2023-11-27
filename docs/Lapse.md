@@ -10,6 +10,17 @@ The Lapse class is the core class for Lapsepy, it covers all the heavylifting fo
 
 ### Profile Modification:
 
+#### Lapse.update_music
+Update your Lapse profile's music
+```python3
+    Lapse.update_music(artist: str, artwork_url: str, duration: int, song_title: str, song_url: str)
+```
+* `artist: str` - The name of the Artist for the song
+* `artwork_url: str` - URL to a jpeg for artwork of the song
+* `duration: int` - Length of the song in seconds
+* `song_title: str` - Title of the song
+* `song_url: str` - URL that leads to the song MP3
+
 #### Lapse.update_bio
 Updates your Lapse profile's bio to the text specified.
 ```python3
