@@ -95,7 +95,7 @@ class Options(BaseOptions):
 
         # x_device_name and x_ios_version_number can probably give conflicting information
         if self.x_device_name is None:
-            self.x_device_id = random.choice(DEVICES)
+            self.x_device_name = random.choice(DEVICES)
 
         if self.x_ios_version_number is None:
             self.x_ios_version_number = random.choice(IOS_VERSIONS)
