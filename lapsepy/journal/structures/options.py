@@ -1,3 +1,4 @@
+import random
 import uuid
 
 IOS_VERSIONS = ["16", "16.0.1", "16.0.2", "16.0.3", "16.1", "16.1.1", "16.1.2", "16.2", "16.3", "16.3.1", "16.4",
@@ -91,6 +92,13 @@ class Options(BaseOptions):
 
         if self.apollographql_client_version is None:
             self.apollographql_client_version = f"{self.x_app_version_number}-{self.x_app_build_number}"
+
+        # x_device_name and x_ios_version_number can probably give conflicting information
+        if self.x_device_name is None:
+            self.x_device_id = random.choice(DEVICES)
+
+        if self.x_ios_version_number is None:
+            self.x_ios_version_number = random.choice(IOS_VERSIONS)
 
         super().__init__(
             x_ios_version_number=self.x_ios_version_number,
