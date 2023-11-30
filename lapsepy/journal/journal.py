@@ -27,7 +27,7 @@ from lapsepy.journal.factory.profile_factory import SaveBioGQL, SaveDisplayNameG
 from lapsepy.journal.factory.album_factory import AlbumMediaGQL
 
 from .structures import Snap, Profile, ProfileMusic, FriendsFeed, FriendNode, DarkRoomMedia, ReviewMediaPartition, \
-    SearchUser, Album, AlbumMedia
+    SearchUser, Album, AlbumMedia, BaseOptions
 
 import logging
 
@@ -44,7 +44,7 @@ def parse_iso_time(iso_str: str) -> datetime:
 
 
 class Journal:
-    def __init__(self, authorization: str, refresher):
+    def __init__(self, authorization: str, refresher, options: BaseOptions):
         self.request_url = "https://sync-service.production.journal-api.lapse.app/graphql"
         self.base_headers = {
             "authorization": authorization
