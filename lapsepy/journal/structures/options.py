@@ -37,7 +37,7 @@ class BaseOptions:
 
     def to_headers(self, operation_name: str, authorization_token: str):
         attrs = list(filter(lambda x: x.startswith("HEADER_"), dir(self)))
-        key_value_pairs = {self.format_header(attr): self.__getattribute__(attr) for attr in attrs}
+        key_value_pairs = {self.format_header(attr): str(self.__getattribute__(attr)) for attr in attrs}
 
         x_emb_path = f"/graphql/{operation_name}"
 
@@ -83,6 +83,15 @@ class Options(BaseOptions):
         self.accept_encoding = "gzip, deflate, br"
         self.x_apollo_operation_type = "query"
 
+        if self.user_agent is None:
+            self.user_agent = f"Lapse/{self.x_app_version_number}/{x_app_build_number} iOS"
+
+        if self.x_device_id is None:
+            self.x_device_id = self.generate_device_id()
+
+        if self.apollographql_client_version is None:
+            self.apollographql_client_version = f"{self.x_app_version_number}-{self.x_app_build_number}"
+
         super().__init__(
             x_ios_version_number=self.x_ios_version_number,
             x_device_name=self.x_device_name,
@@ -99,15 +108,6 @@ class Options(BaseOptions):
             accept_encoding=self.accept_encoding,
             x_apollo_operation_type=self.x_apollo_operation_type
         )
-
-        if self.user_agent is None:
-            self.user_agent = f"Lapse/{self.x_app_version_number}/{x_app_build_number} iOS"
-
-        if self.x_device_id is None:
-            self.x_device_id = self.generate_device_id()
-
-        if self.apollographql_client_version is None:
-            self.apollographql_client_version = f"{self.x_app_version_number}-{self.x_app_build_number}"
 
 
 if __name__ == '__main__':

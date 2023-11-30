@@ -27,7 +27,7 @@ from lapsepy.journal.factory.profile_factory import SaveBioGQL, SaveDisplayNameG
 from lapsepy.journal.factory.album_factory import AlbumMediaGQL
 
 from .structures import Snap, Profile, ProfileMusic, FriendsFeed, FriendNode, DarkRoomMedia, ReviewMediaPartition, \
-    SearchUser, Album, AlbumMedia, BaseOptions
+    SearchUser, Album, AlbumMedia, BaseOptions, Options
 
 import logging
 
@@ -44,12 +44,15 @@ def parse_iso_time(iso_str: str) -> datetime:
 
 
 class Journal:
-    def __init__(self, authorization: str, refresher, options: BaseOptions):
+    def __init__(self, authorization: str, refresher, options: BaseOptions | None = None):
         self.request_url = "https://sync-service.production.journal-api.lapse.app/graphql"
-        self.base_headers = {
-            "authorization": authorization
-        }
         self.refresher = refresher
+        self.auth_token = authorization
+
+        if options is None:
+            options = Options()
+
+        self.options = options
 
     def _sync_journal_call(self, query: dict, reauth=True) -> dict:
         """
@@ -59,7 +62,13 @@ class Journal:
         """
 
         logger.debug(f"Making request to {self.request_url}")
-        request = requests.post(self.request_url, headers=self.base_headers, json=query)
+
+        operation = query.get("operationName")
+        headers = self.options.to_headers(operation_name=operation, authorization_token=self.auth_token)
+
+        request = requests.post(self.request_url, headers=headers, json=query)
+
+        print(request, request.request.headers)
 
         # Check for exceptions raised while making request, none of these are handled.
         try:
@@ -114,7 +123,7 @@ class Journal:
         aws_request.raise_for_status()
 
     def refresh_authorization(self, new_token: str):
-        self.base_headers['authorization'] = new_token
+        self.auth_token = new_token
         logger.debug("Refreshed authorization in Journal")
 
     def image_upload_url_call(self, file_uuid: str, is_instant: bool = False) -> str:

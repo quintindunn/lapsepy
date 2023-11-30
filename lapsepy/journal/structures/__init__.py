@@ -8,4 +8,4 @@ from .snap import Snap, DarkRoomMedia, ReviewMediaPartition
 from .friendsfeed import FriendsFeed, FriendNode
 from .searches import SearchUser
 from .album import Album, AlbumMedia
-from .options import BaseOptions
+from .options import BaseOptions, Options
