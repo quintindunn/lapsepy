@@ -68,8 +68,6 @@ class Journal:
 
         request = requests.post(self.request_url, headers=headers, json=query)
 
-        print(request, request.request.headers)
-
         # Check for exceptions raised while making request, none of these are handled.
         try:
             request.raise_for_status()
