@@ -8,7 +8,7 @@ from datetime import datetime
 from lapsepy.auth.refresher import refresh
 from lapsepy.journal.journal import Journal
 from lapsepy.journal.common.exceptions import UserNotFoundException
-from lapsepy.journal.structures import Profile, DarkRoomMedia, ReviewMediaPartition
+from lapsepy.journal.structures import Profile, DarkRoomMedia, ReviewMediaPartition, BaseOptions
 
 import logging
 
@@ -16,10 +16,10 @@ logger = logging.getLogger("lapsepy.lapse.lapse.py")
 
 
 class Lapse:
-    def __init__(self, refresh_token):
+    def __init__(self, refresh_token, options: BaseOptions | None = None):
         self.refresh_token = refresh_token
         self.auth_token: str | None = None
-        self.journal = Journal(authorization=self.auth_token, refresher=self._refresh_auth_token)
+        self.journal = Journal(authorization=self.auth_token, refresher=self._refresh_auth_token, options=options)
         self._refresh_auth_token()
 
     def _refresh_auth_token(self) -> None:
